@@ -1,8 +1,42 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Bold";
+  src: url("../assets//fonts/Manrope-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Regular";
+  src: url("../assets/fonts/Manrope-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Medium";
+  src: url("../assets/fonts/Manrope-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "SemiBold";
+  src: url("../assets/fonts/Manrope-SemiBold.ttf") format("truetype");
+}
+
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Fonts */
+
+  --font-sans: "Regular", "Inter";
+  --font-bold: "Bold", "Inter";
+  --font-medium: "Medium", "Inter";
+  --font-semibold: "SemiBold", "Inter";
+
+  /* Colors */
+
+  --color-black: #151610;
+  --color-light-green: #d1f473;
+  --color-dark-green: #203522;
+
+  /* Screen sizes */
+
+  --screens-sms: 640px;
 }
 
 html,
