@@ -1,6 +1,5 @@
-import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
-import { toast } from "react-toastify";
+// @ts-nocheck
+import type { Route } from "../+types/homePage";
 import HeroSection from "components/hero.section";
 
 export function meta({}: Route.MetaArgs) {
@@ -11,13 +10,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const notify = () => toast("Wow so easy !");
-
   return (
-    <article>
-      <button onClick={notify}>Notify !</button>
+    <article className="flex-1 w-full min-h-screen">
       <HeroSection />
-      <Welcome />
     </article>
   );
 }

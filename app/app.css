@@ -31,8 +31,12 @@
   /* Colors */
 
   --color-black: #151610;
-  --color-light-green: #d1f473;
+  --color-green: #2db976;
+  --color-green-hover: #218a58;
   --color-dark-green: #203522;
+  --color-purple: "#6963B5";
+  --color-blue: "#0088E4";
+  --color-gray: #5d6165;
 
   /* Screen sizes */
 
@@ -41,9 +45,24 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-white;
+  @apply text-black;
+}
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+.padd {
+  @apply px-[8%];
+}
+
+/* screen size of ipad */
+@media (max-width: 768px) {
+  .padd {
+    @apply px-[5%];
+  }
+}
+
+/* screen size of mobile */
+@media (max-width: 640px) {
+  .padd {
+    @apply px-[3%];
   }
 }

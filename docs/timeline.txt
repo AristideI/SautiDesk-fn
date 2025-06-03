@@ -3,3 +3,5 @@ setup strapi backend
                     connect the proeject to the google cloud and link the frontend to the backend
 
 ** Make sure the authentication is working properly before proceeding to the next step
+
+
