@@ -1,87 +1,107 @@
-# Welcome to React Router!
+# 🌐 SautiDesk Frontend
 
-A modern, production-ready template for building full-stack React applications using React Router.
+A modern, production-ready frontend for the **SautiDesk** platform, built using **React 19**, **React Router v7**, **TailwindCSS**, and **MobX** for state management.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+> 📦 Backend repository: [SautiDesk Backend](https://github.com/AristideI/SautiDesk-bn)
 
-## Features
+---
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## 📝 Project Description
 
-## Getting Started
+**SautiDesk** is an intelligent customer support solution that leverages voice analytics and ticket classification to streamline communication in sectors like education, telecom, and public services. This backend manages content, user roles, authentication, ticket lifecycle, and more.
 
-### Installation
+---
 
-Install the dependencies:
+## ⚡️ Tech Stack
+
+- **React 19**
+- **React Router v7**
+- **Tailwind CSS**
+- **MobX**
+- **TypeScript**
+- **HMR (Hot Module Replacement)**
+- **Docker support**
+
+---
+
+## 🚀 Features
+
+- Full-stack routing and SSR with React Router
+- Modern dev workflow with HMR
+- Type-safe with TypeScript
+- Custom state management using MobX
+- TailwindCSS styling
+- Easy deployment with Docker
+
+---
+
+## 📦 Getting Started
+
+### 🔧 Installation
+
+Clone the repository and install dependencies:
 
 ```bash
+git clone https://github.com/AristideI/SautiDesk-fn.git
+cd SautiDesk-fn
 npm install
 ```
 
-### Development
+## 🛠 Development
 
-Start the development server with HMR:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
+Visit the app at ` http://localhost:5173`
 
-## Building for Production
-
-Create a production build:
+## 🧱 Build for Production
 
 ```bash
 npm run build
 ```
 
-## Deployment
+## 🚀 Deployment
 
-### Docker Deployment
+### 🧰 Manual Deployment
 
-To build and run using Docker:
+To deploy manually, serve the production build:
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+npm run build
+npm start
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+The build outputs the following structure:
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
+```bash
+Copy
+Edit
 ├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+│   ├── client/   # Static frontend assets
+│   └── server/   # Server-rendering output
 ```
 
-## Styling
+## 🧪 Type Checking
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+Run type checks and ensure your app is type-safe:
 
----
+```bash
+npm run typecheck
+```
 
-Built with ❤️ using React Router.
+## 🚀 Release Management
+
+Automate versioning with standard-version:
+
+```bash
+npm run release:major
+npm run release:minor
+npm run release:patch
+```
+
+## 🎨 Styling
+
+Tailwind CSS is preconfigured and ready to use. You can customize the design in tailwind.config.ts and start styling your components right away using utility classes.

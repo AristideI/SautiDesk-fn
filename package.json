@@ -6,7 +6,10 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "release:major": "standard-version --release-as major",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch"
   },
   "dependencies": {
     "@react-router/node": "^7.5.3",
@@ -19,6 +22,7 @@
     "react-dom": "^19.1.0",
     "react-router": "^7.5.3",
     "react-toastify": "^11.0.5",
+    "standard-version": "^9.5.0",
     "type-fest": "^4.41.0"
   },
   "devDependencies": {

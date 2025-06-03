@@ -1,6 +1,7 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
 import { toast } from "react-toastify";
+import HeroSection from "components/hero.section";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,6 +16,7 @@ export default function Home() {
   return (
     <article>
       <button onClick={notify}>Notify !</button>
+      <HeroSection />
       <Welcome />
     </article>
   );
