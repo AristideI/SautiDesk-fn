@@ -4,7 +4,7 @@ import Logo from "./logo";
 
 export default function GeneralHeader() {
   return (
-    <article className="flex justify-between items-center sticky top-0 border-b border-dark-green padd py-4 bg-white">
+    <article className="flex justify-between items-center sticky top-0 border-b-2 border-dark-green/20 padd py-4 bg-white">
       <Logo />
       <section className="flex gap-6 font-semibold">
         <HeaderLink to="/" text="Home" />
