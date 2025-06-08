@@ -10,6 +10,7 @@ import { ToastContainer } from "react-toastify";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import AuthContextProvider from "store/auth.context";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -35,10 +36,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-white">
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-        <ToastContainer position="top-center" theme="dark" />
+        <AuthContextProvider>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+          <ToastContainer position="top-center" theme="dark" />
+        </AuthContextProvider>
       </body>
     </html>
   );

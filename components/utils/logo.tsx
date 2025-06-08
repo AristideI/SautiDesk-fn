@@ -8,8 +8,8 @@ export default function Logo() {
   }
 
   return (
-    <button onClick={handleLogoClick}>
-      <h1 className="text-2xl font-serif">SautiDesk</h1>
+    <button onClick={handleLogoClick} className="">
+      <img src="/logo.png" alt="main Logo" className="object-contain w-40" />
     </button>
   );
 }

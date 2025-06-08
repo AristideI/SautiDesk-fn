@@ -4,4 +4,3 @@ setup strapi backend
 
 ** Make sure the authentication is working properly before proceeding to the next step
 
-

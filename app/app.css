@@ -45,13 +45,14 @@
 
 html,
 body {
-  @apply bg-white;
-  @apply text-black;
+  @apply bg-black;
+  @apply text-white;
 }
 
 .padd {
   @apply px-[8%];
 }
+
 
 /* screen size of ipad */
 @media (max-width: 768px) {

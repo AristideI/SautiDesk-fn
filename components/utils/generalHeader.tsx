@@ -1,10 +1,20 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import Button from "./button";
 import Logo from "./logo";
 
 export default function GeneralHeader() {
+  const navigate = useNavigate();
+
+  function navigateToLogin() {
+    navigate("/login");
+  }
+
+  function viewDemo() {
+    navigate("/demo");
+  }
+
   return (
-    <article className="flex justify-between items-center sticky top-0 border-b-2 border-dark-green/20 padd py-4 bg-white">
+    <article className="flex justify-between items-center sticky top-0 border-b border-green/20 padd py-4 bg-black">
       <Logo />
       <section className="flex gap-6 font-semibold">
         <HeaderLink to="/" text="Home" />
@@ -16,14 +26,10 @@ export default function GeneralHeader() {
       <section className="flex gap-6">
         <Button
           buttonText="Try SautiDesk"
-          onPress={() => {}}
+          onPress={navigateToLogin}
           variant="primary"
         />
-        <Button
-          buttonText="View Demo"
-          onPress={() => {}}
-          variant="quaternary"
-        />
+        <Button buttonText="View Demo" onPress={viewDemo} variant="secondary" />
       </section>
     </article>
   );
