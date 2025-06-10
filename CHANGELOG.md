@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/AristideI/SautiDesk-fn/compare/v0.1.0...v0.1.1) (2025-06-10)
+
+
+### Features
+
+* handle login andd routing ([3fb4f38](https://github.com/AristideI/SautiDesk-fn/commit/3fb4f388a043dc527abd7db8734d0562e7d3087e))
+
 ## 0.1.0 (2025-06-08)
 
 
