@@ -45,7 +45,7 @@ function HeaderLink({ to, text }: NavLinkProps) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `${isActive ? "border-b-2 border-green text-green font-bold" : ""}`
+        `text-sm ${isActive ? "border-b-2 border-green text-green font-bold" : ""}`
       }
     >
       {text}

@@ -36,19 +36,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-white">
-        <AuthContextProvider>
-          {children}
-          <ScrollRestoration />
-          <Scripts />
-          <ToastContainer position="top-center" theme="dark" />
-        </AuthContextProvider>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <AuthContextProvider>
+      <Outlet />
+      <ToastContainer position="top-center" theme="dark" />
+    </AuthContextProvider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

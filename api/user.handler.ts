@@ -9,14 +9,9 @@ import type { IImage } from "types/image.type";
 import { authHeaders } from "api";
 
 const defaultWorkerPopulates = {
-  "populate[worker][populate][category]": "*",
-  "populate[worker][populate][images]": "*",
-  "populate[worker][populate][languages]": "*",
-  "populate[worker][populate][educations]": "*",
-  "populate[worker][populate][certificates]": "*",
-  "populate[worker][populate][skills]": "*",
   "populate[profile]": "*",
-  "populate[reviews]": "*",
+  "populate[tickets]": "*",
+  "populate[organisation]": "*",
 };
 
 export const UserHandler = {
@@ -50,11 +45,7 @@ export const UserHandler = {
   async getLoginUser(id: number) {
     const { data } = await strapi.get<IUser>(`/users/${id}`, {
       headers: authHeaders(),
-      params: {
-        ...defaultWorkerPopulates,
-        "populate[reviews][populate][from][populate][profile]": "*",
-        "populate[reviews][populate][to][populate][profile]": "*",
-      },
+      params: defaultWorkerPopulates,
     });
     return data;
   },
@@ -62,12 +53,7 @@ export const UserHandler = {
   async getUser(id: string) {
     const { data } = await strapi.get<IUser>(`/users/${id}`, {
       headers: authHeaders(),
-      params: {
-        "filters[roles][$eq]": "Worker",
-        ...defaultWorkerPopulates,
-        "populate[reviews][populate][from][populate][profile]": "*",
-        "populate[reviews][populate][to]": "*",
-      },
+      params: defaultWorkerPopulates,
     });
     return data;
   },

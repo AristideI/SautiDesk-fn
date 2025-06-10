@@ -9,7 +9,24 @@ export default function Logo() {
 
   return (
     <button onClick={handleLogoClick} className="">
-      <img src="/logo.png" alt="main Logo" className="object-contain w-40" />
+      <img src="/logo.png" alt="main Logo" className="object-contain w-36" />
+    </button>
+  );
+}
+export function LogoIcon() {
+  const navigate = useNavigate();
+
+  function handleLogoClick() {
+    navigate("/");
+  }
+
+  return (
+    <button onClick={handleLogoClick} className="">
+      <img
+        src="/logoIcon.png"
+        alt="main Logo"
+        className="object-contain w-8"
+      />
     </button>
   );
 }

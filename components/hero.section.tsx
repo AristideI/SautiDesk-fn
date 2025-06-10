@@ -1,12 +1,4 @@
-import { useEffect, useState } from "react";
-
 export default function HeroSection() {
-  useEffect(() => {
-    const ref = document;
-    // setReferrer(ref);
-    console.log("Referrer:", ref);
-  }, []);
-
   return (
     <article className="py-20 padd">
       <section className="w-full text-center pb-20">

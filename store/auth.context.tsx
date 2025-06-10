@@ -65,7 +65,7 @@ export default function AuthContextProvider({ children }: ProviderProps) {
       setUserRole(null);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      localStorage.removeItem("role");
+      localStorage.removeItem("userRole");
     }
   }, []);
 
@@ -76,7 +76,6 @@ export default function AuthContextProvider({ children }: ProviderProps) {
       setUserRole(response.userRole);
       localStorage.setItem("user", JSON.stringify(response));
       localStorage.setItem("userRole", response.userRole);
-      console.log("User info loaded:", response);
     } catch (error) {
       console.error("Error loading user info:", error);
     }
@@ -91,7 +90,7 @@ export default function AuthContextProvider({ children }: ProviderProps) {
       setUser(user);
       setUserRole(user.userRole);
       localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("role", user.userRole);
+      localStorage.setItem("userRole", user.userRole);
       return user;
     } catch (error) {
       console.error("Error during login:", error);
