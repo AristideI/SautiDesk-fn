@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.1.2...v0.2.0) (2025-06-15)
+
+
+### Features
+
+* organisation pages and routing ([e337484](https://github.com/AristideI/SautiDesk-fn/commit/e337484756f03466557c2fe62af901c9f2155f47))
+
 ### [0.1.2](https://github.com/AristideI/SautiDesk-fn/compare/v0.1.1...v0.1.2) (2025-06-10)
 
 ### [0.1.1](https://github.com/AristideI/SautiDesk-fn/compare/v0.1.0...v0.1.1) (2025-06-10)
