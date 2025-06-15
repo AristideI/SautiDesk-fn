@@ -28,7 +28,7 @@ export default function UserButton() {
           <img
             src={user?.profile.url}
             alt="User Icon"
-            className="w-8 h-8 rounded-full"
+            className="w-9 h-9 rounded-full object-cover"
           />
         ) : (
           <div className="w-8 h-8 rounded-full grid place-content-center bg-green text-lg font-bold">
@@ -36,6 +36,36 @@ export default function UserButton() {
           </div>
         )}
       </button>
+    </article>
+  );
+}
+
+export function OrgUserButton() {
+  const { user } = useAuthContext();
+  const nameInitials = user?.username
+    .split(" ")
+    .map((n) => n[0])
+    .join("");
+
+  return (
+    <article className="flex  gap-4">
+      <button>
+        {user?.profile ? (
+          <img
+            src={user?.profile.url}
+            alt="User Icon"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full grid place-content-center bg-green text-lg font-bold">
+            <p>{nameInitials}</p>
+          </div>
+        )}
+      </button>
+      <section className="">
+        <p className="text-white text-sm">{user?.username}</p>
+        <p className="text-white/70 text-xs">{user?.userRole}</p>
+      </section>
     </article>
   );
 }

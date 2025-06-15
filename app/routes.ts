@@ -24,20 +24,29 @@ export default [
     //   route("settings", "routes/_auth/_general/settings.tsx"),
 
     // Organisation Owner - /o/*
-    route("o/dashboard", "routes/_auth/_owner/dashboard.tsx"),
-    // route(
-    //   "o/create-organisation",
-    //   "routes/_auth/_owner/create-organisation.tsx"
-    // ),
-    // route(
-    //   "o/manage-organisation",
-    //   "routes/_auth/_owner/manage-organisation.tsx"
-    // ),
-    // route("o/manage-users", "routes/_auth/_owner/manage-users.tsx"),
-    // route("o/manage-tickets", "routes/_auth/_owner/manage-tickets.tsx"),
-    // route("o/manage-reports", "routes/_auth/_owner/manage-reports.tsx"),
-    // route("o/inbox", "routes/_auth/_owner/inbox.tsx"),
-    // route("o/knowledge-base", "routes/_auth/_owner/knowledge-base.tsx"),
+    route("o/organisations", "routes/_auth/_owner/organisationsPage.tsx"),
+    layout("../components/layouts/organisationLayout.tsx", [
+      route(
+        "o/organisations/:organisationId",
+        "routes/_auth/_owner/viewOrganisation.tsx"
+      ),
+      route(
+        "o/organisations/:organisationId/tickets",
+        "routes/_auth/_owner/orgTicketsPage.tsx"
+      ),
+      route(
+        "o/organisations/:organisationId/knowledge-base",
+        "routes/_auth/_owner/KnowledgeBase.tsx"
+      ),
+      route(
+        "o/organisations/:organisationId/inbox",
+        "routes/_auth/_owner/orgInboxPage.tsx"
+      ),
+      route(
+        "o/organisations/:organisationId/forum",
+        "routes/_auth/_owner/forumPage.tsx"
+      ),
+    ]),
 
     //   // Organisation Member - /m/*
     //   route("m/dashboard", "routes/_auth/_member/dashboard.tsx"),

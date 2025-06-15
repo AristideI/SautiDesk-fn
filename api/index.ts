@@ -1,6 +1,6 @@
 import getAuthToken from "utils/getAuthToken";
-import strapi from "./strapi";
 import { UserHandler } from "./user.handler";
+import { OrganisationHandler } from "./organisation.handler";
 
 export const authHeaders = () => ({
   Authorization: `Bearer ${getAuthToken()}`,
@@ -8,4 +8,5 @@ export const authHeaders = () => ({
 
 export const API = {
   userHandler: UserHandler,
+  organisationHandler: OrganisationHandler,
 };

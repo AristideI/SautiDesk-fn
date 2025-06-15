@@ -10,11 +10,11 @@ export default function MainLayout({
   const navigate = useNavigate();
   const { user } = useAuthContext();
 
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/login");
+  //   }
+  // }, []);
 
   return (
     <div>

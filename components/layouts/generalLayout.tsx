@@ -15,11 +15,11 @@ export default function GeneralLayout() {
   const navigate = useNavigate();
   const { user } = useAuthContext();
 
-  useEffect(() => {
-    if (user?.userRole === UserRole.ADMIN) {
-      navigate("/o/dashboard");
-    }
-  }, [user, navigate]);
+  // useEffect(() => {
+  //   if (user?.userRole === UserRole.ADMIN) {
+  //     navigate("/o/organisations");
+  //   }
+  // }, [user, navigate]);
 
   const hideHeader =
     location.pathname === "/login" || location.pathname === "/register";
