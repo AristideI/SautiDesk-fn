@@ -58,7 +58,7 @@ export default function OrganisationsPage() {
                     <OrganisationCard
                       key={org.id}
                       organisation={org}
-                      onClick={() => handleOpenOrganisation(org.id)}
+                      onClick={() => handleOpenOrganisation(org.documentId)}
                     />
                   ))}
                 </div>

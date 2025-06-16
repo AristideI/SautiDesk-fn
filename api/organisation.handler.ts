@@ -27,6 +27,7 @@ export const OrganisationHandler = {
         },
       }
     );
+
     return data.data;
   },
 
@@ -37,8 +38,11 @@ export const OrganisationHandler = {
       };
     }>(`/organisations/${id}`, {
       headers: authHeaders(),
+      params: {
+        "populate[agents][populate][profile][populate]": "*",
+        "populate[tickets][populate][assignedTo][populate]": "*",
+      },
     });
-    console.log(data);
     return data.data;
   },
 };
