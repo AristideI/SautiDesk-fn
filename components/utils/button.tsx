@@ -24,7 +24,7 @@ export default function Button({
   } `;
 
   const variantStyles = {
-    primary: "bg-green hover:bg-green-hover text-white",
+    primary: "bg-green/50 border border-green hover:bg-green-hover text-white",
     secondary: "border-green border text-green hover:bg-dark-green/20",
   };
 

@@ -1,6 +1,7 @@
 import { API } from "api";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useAuthContext } from "store/auth.context";
 import type { IOrganisation } from "types/organisation.type";
 
 export default function useOrganisations(ownerId?: string) {
@@ -8,9 +9,13 @@ export default function useOrganisations(ownerId?: string) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { user } = useAuthContext();
+
   useEffect(() => {
+    if (!ownerId && !user?.documentId) return; // Don't run if we don't have a valid ID
+
     fetchOrganisations();
-  }, []);
+  }, [ownerId, user?.documentId]);
 
   async function fetchOrganisations() {
     setLoading(true);
@@ -18,7 +23,7 @@ export default function useOrganisations(ownerId?: string) {
 
     try {
       const organisations = await API.organisationHandler.findByPersonId(
-        ownerId || ""
+        ownerId || user?.documentId || ""
       );
       setOrganisations(organisations);
     } catch (error) {

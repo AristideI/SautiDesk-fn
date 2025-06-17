@@ -59,7 +59,9 @@ export default function OrganisationContextProvider({
     const organisation = await API.organisationHandler.findById(
       organisationId!
     );
-    console.log("Organisation loaded:", organisation);
+    setOrganisation(organisation);
+    setTickets(organisation.tickets || []);
+    setAgents(organisation.agents || []);
   }
 
   const values = useMemo(() => {

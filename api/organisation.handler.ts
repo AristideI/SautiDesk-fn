@@ -33,9 +33,7 @@ export const OrganisationHandler = {
 
   async findById(id: string) {
     const { data } = await strapi.get<{
-      data: {
-        data: IOrganisation;
-      };
+      data: IOrganisation;
     }>(`/organisations/${id}`, {
       headers: authHeaders(),
       params: {
