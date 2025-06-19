@@ -1,3 +1,5 @@
+import { LoadingSpinner } from "./loadings";
+
 interface ButtonProps {
   onPress: () => void | Promise<void>;
   buttonText: string;
@@ -35,7 +37,10 @@ export default function Button({
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
     >
       {isLoading ? (
-        <p>Loading...</p>
+        <div>
+          <LoadingSpinner isWhite={variant === "primary"} />
+          <p className="h-0 opacity-0 ">{buttonText}</p>
+        </div>
       ) : (
         <>
           {icon && <span>{icon}</span>}

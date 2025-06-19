@@ -5,6 +5,9 @@ import useOrganisations from "hooks/useOrganisations";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuthContext } from "store/auth.context";
+import Lottie from "react-lottie";
+import loadingAnimation from "assets/animations/mainLoading.json";
+import { LoadingSection } from "components/utils/loadings";
 
 export default function OrganisationsPage() {
   const { user } = useAuthContext();
@@ -16,6 +19,16 @@ export default function OrganisationsPage() {
   function handleOpenOrganisation(id: string) {
     navigate(`/o/organisations/${id}`);
   }
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+
+    animationData: loadingAnimation,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
 
   return (
     <article>
@@ -44,17 +57,12 @@ export default function OrganisationsPage() {
             </label>
           </section>
           {loading ? (
-            <p>We are loading your content</p>
+            <LoadingSection />
           ) : (
             <section>
               {organisations.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    ...organisations,
-                    ...organisations,
-                    ...organisations,
-                    ...organisations,
-                  ].map((org) => (
+                  {organisations.map((org) => (
                     <OrganisationCard
                       key={org.id}
                       organisation={org}

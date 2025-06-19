@@ -8,13 +8,35 @@ export interface ITicket {
   description: string;
   state: TicketState;
   priority: TicketPriority;
+  type: TicketType;
   assignedTo?: IUser;
   ownedBy: IUser;
   organisation: IOrganisation;
-  tags?: string[];
+  tags?: string;
   source: TicketSource;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ITicketCreate {
+  title: string;
+  description: string;
+  state: TicketState;
+  priority: TicketPriority;
+  assignedTo?: string;
+  ownedBy: string;
+  organisation: string;
+  tags?: string;
+  source: TicketSource;
+}
+
+export interface ITicketUpdate {
+  title?: string;
+  description?: string;
+  state?: TicketState;
+  priority?: TicketPriority;
+  assignedTo?: string;
+  tags?: string;
 }
 
 export enum TicketState {
@@ -34,4 +56,14 @@ export enum TicketPriority {
 export enum TicketSource {
   MANUAL = "MANUAL",
   AI = "AI",
+}
+
+export enum TicketType {
+  TICKET = "TICKET",
+  INCIDENT = "INCIDENT",
+  QUESTION = "QUESTION",
+  REQUEST = "REQUEST",
+  PROBLEM = "PROBLEM",
+  SUGGESTION = "SUGGESTION",
+  OTHER = "OTHER",
 }
