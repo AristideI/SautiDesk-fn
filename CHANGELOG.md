@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.3.0...v0.4.0) (2025-06-19)
+
+
+### Features
+
+* organisation tickets refactoring ([da3d2f8](https://github.com/AristideI/SautiDesk-fn/commit/da3d2f83d24b0cb1627575c87ab0849fab2bc429))
+* signup page ([bd8db96](https://github.com/AristideI/SautiDesk-fn/commit/bd8db96bc5198403957a2afae5f53c3b3d10ab34))
+
 ## [0.3.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.2.0...v0.3.0) (2025-06-17)
 
 
