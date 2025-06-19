@@ -1,3 +1,4 @@
+import React from "react";
 import Logo from "components/utils/logo";
 import { OrgUserButton } from "components/utils/userButton";
 import {
@@ -7,6 +8,7 @@ import {
   MessageSquareQuote,
   Power,
   Ticket,
+  Users,
 } from "lucide-react";
 import { NavLink, Outlet, useParams } from "react-router";
 import OrganisationContextProvider from "store/organisation.context";
@@ -24,6 +26,11 @@ export default function OrganisationLayout() {
       path: `/o/organisations/${organisationId}/tickets`,
       name: "Tickets",
       Icon: Ticket,
+    },
+    {
+      path: `/o/organisations/${organisationId}/manage-users`,
+      name: "Manage Users",
+      Icon: Users,
     },
     {
       path: `/o/organisations/${organisationId}/inbox`,

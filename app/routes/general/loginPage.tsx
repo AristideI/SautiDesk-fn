@@ -31,8 +31,8 @@ export default function LoginPage() {
 
     try {
       const user = await login({ identifier: email, password });
-      if (user?.userRole === "SUPER_ADMIN") {
-        navigate("/");
+      if (user?.userRole === "ADMIN") {
+        navigate("/o/organisations");
       } else {
         navigate("/");
       }

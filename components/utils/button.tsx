@@ -19,7 +19,7 @@ export default function Button({
   variant = "primary",
   icon,
 }: ButtonProps) {
-  const baseStyles = `px-6 py-1 flex gap-2 text-sm justify-center items-center rounded-lg focus:outline-none transition-all duration-300 cursor-pointer ${
+  const baseStyles = `px-6 py-2 flex gap-2 text-sm justify-center items-center rounded-lg focus:outline-none transition-all duration-300 cursor-pointer ${
     fullWidth ? "w-full" : ""
   } `;
 
@@ -35,7 +35,7 @@ export default function Button({
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
     >
       {isLoading ? (
-        <p>Loaing</p>
+        <p>Loading...</p>
       ) : (
         <>
           {icon && <span>{icon}</span>}

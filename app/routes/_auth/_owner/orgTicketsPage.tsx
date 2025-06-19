@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Button from "components/utils/button";
 import {
   Calendar,
@@ -8,14 +8,19 @@ import {
   Ticket,
   Workflow,
   X,
+  Mic,
 } from "lucide-react";
 import { useOrganisationContext } from "store/organisation.context";
 import type { ITicket } from "types/ticket.types";
 import { TicketPriority, TicketState } from "types/ticket.types";
+import { openAIApiKey } from "utils/env";
 
 export default function OrgTicketsPage() {
   const { tickets, agents } = useOrganisationContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -28,8 +33,16 @@ export default function OrgTicketsPage() {
     setIsModalOpen(true);
   }
 
+  function handleOnOpenAIModal() {
+    setIsAIModalOpen(true);
+  }
+
   function handleCloseModal() {
     setIsModalOpen(false);
+  }
+
+  function handleCloseAIModal() {
+    setIsAIModalOpen(false);
   }
 
   function handleInputChange(
@@ -49,6 +62,80 @@ export default function OrgTicketsPage() {
     handleCloseModal();
   }
 
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    try {
+      // First, transcribe the audio using OpenAI
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("model", "whisper-1");
+
+      const transcriptionResponse = await fetch(
+        "https://api.openai.com/v1/audio/transcriptions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openAIApiKey}`,
+          },
+          body: formData,
+        }
+      );
+
+      const transcriptionData = await transcriptionResponse.json();
+      const transcription = transcriptionData.text;
+
+      // Then, use GPT to generate ticket information
+      const gptResponse = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openAIApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a helpful assistant that creates ticket information from audio transcriptions. Extract a title, description, and suggest a priority (HIGH, MEDIUM, or LOW) based on the content. Format the response as JSON with fields: title, description, priority.",
+              },
+              {
+                role: "user",
+                content: transcription,
+              },
+            ],
+            response_format: { type: "json_object" },
+          }),
+        }
+      );
+
+      const gptData = await gptResponse.json();
+      const ticketInfo = JSON.parse(gptData.choices[0].message.content);
+
+      // Update the form with the generated information
+      setFormData((prev) => ({
+        ...prev,
+        title: ticketInfo.title,
+        description: ticketInfo.description,
+        priority: ticketInfo.priority,
+      }));
+
+      // Close AI modal and open the ticket creation modal
+      handleCloseAIModal();
+      handleOnOpenModal();
+    } catch (error) {
+      console.error("Error processing audio:", error);
+      alert("Error processing audio file. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  }
+
   function formatDate(date: Date) {
     return new Date(date).toLocaleDateString();
   }
@@ -62,6 +149,13 @@ export default function OrgTicketsPage() {
             buttonText="Focus Mode"
             variant="secondary"
             onPress={() => {}}
+            className="border-white/50 hover:bg-white/10 text-white/50"
+          />
+          <Button
+            buttonText="Create with AI"
+            variant="secondary"
+            icon={<Mic size={20} />}
+            onPress={handleOnOpenAIModal}
             className="border-white/50 hover:bg-white/10 text-white/50"
           />
           <Button buttonText="Add Ticket" onPress={handleOnOpenModal} />
@@ -186,6 +280,45 @@ export default function OrgTicketsPage() {
           <div className="text-center py-8 text-white/60">No tickets found</div>
         )}
       </article>
+
+      {/* AI Modal */}
+      <div
+        className={`fixed top-0 right-0 h-full w-1/3 bg-black/95 border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
+          isAIModalOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Create Ticket with AI</h2>
+            <button
+              onClick={handleCloseAIModal}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="audio/*"
+              className="hidden"
+            />
+            <Button
+              buttonText={isProcessing ? "Processing..." : "Upload Audio File"}
+              onPress={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="w-full max-w-md"
+            />
+            <p className="mt-4 text-white/60 text-center">
+              Upload an audio file describing your ticket. We&apos;ll process it
+              and create a ticket for you.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Sliding Modal */}
       <div
