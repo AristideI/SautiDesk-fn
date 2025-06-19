@@ -37,6 +37,7 @@ export default function LoginPage() {
         navigate("/");
       }
     } catch (e) {
+      console.log(e);
       setLoginError("Invalid email or password, please try again!");
       toast.error("An error occurred. Please try again later");
     } finally {
@@ -215,10 +216,10 @@ export function AuthLeftSection() {
           <p className="text-2xl font-bold">Welcome to Sauti Desk</p>
           <p className="">
             Sauti Desk is your unified platform for managing support tickets,
-            communication, and knowledge sharing. Whether you're an organization
-            owner, team member, or client, everything you need is in one place.
-            Log in to continue or create an account to get started with seamless
-            support.
+            communication, and knowledge sharing. Whether you&apos;re an
+            organization owner, team member, or client, everything you need is
+            in one place. Log in to continue or create an account to get started
+            with seamless support.
           </p>
           <p className="font-serif">SautiDesk &#169; 2025</p>
         </div>
