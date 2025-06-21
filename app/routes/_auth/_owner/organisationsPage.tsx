@@ -5,13 +5,11 @@ import useOrganisations from "hooks/useOrganisations";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuthContext } from "store/auth.context";
-import Lottie from "react-lottie";
-import loadingAnimation from "assets/animations/mainLoading.json";
 import { LoadingSection } from "components/utils/loadings";
 
 export default function OrganisationsPage() {
   const { user } = useAuthContext();
-  const { organisations, loading, error } = useOrganisations(user?.documentId);
+  const { organisations, loading } = useOrganisations(user?.documentId);
   const navigate = useNavigate();
 
   function HandleOnCreate() {}
@@ -19,16 +17,6 @@ export default function OrganisationsPage() {
   function handleOpenOrganisation(id: string) {
     navigate(`/o/organisations/${id}`);
   }
-
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-
-    animationData: loadingAnimation,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
 
   return (
     <article>

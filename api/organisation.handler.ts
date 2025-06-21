@@ -24,6 +24,7 @@ export const OrganisationHandler = {
               $eq: personId,
             },
           },
+          "populate[agents][populate]": "*",
         },
       }
     );

@@ -10,6 +10,7 @@ export default function OrganisationCard({
   organisation,
   onClick,
 }: OrganisationCardProps) {
+  console.log(organisation.agents?.length);
   return (
     <button
       className="flex gap-3 p-4 bg-white/10 rounded-lg shadow-md cursor-pointer hover:shadow-lg hover:bg-black transition-all border border-white/60"
@@ -20,7 +21,9 @@ export default function OrganisationCard({
       </div>
       <div className="flex flex-col justify-start items-start">
         <p className="font-semibold text-sm">{organisation.name}</p>
-        <p className="text-sm text-gray-400">{organisation.agents?.length || 0} Agents.</p>
+        <p className="text-sm text-gray-400">
+          {organisation.agents?.length || 0} Agents.
+        </p>
       </div>
     </button>
   );

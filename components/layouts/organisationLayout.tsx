@@ -10,7 +10,7 @@ import {
   Ticket,
   Users,
 } from "lucide-react";
-import { NavLink, Outlet, useParams } from "react-router";
+import { NavLink, Outlet, useMatch, useParams } from "react-router";
 import OrganisationContextProvider from "store/organisation.context";
 
 export default function OrganisationLayout() {
@@ -28,8 +28,8 @@ export default function OrganisationLayout() {
       Icon: Ticket,
     },
     {
-      path: `/o/organisations/${organisationId}/manage-users`,
-      name: "Manage Users",
+      path: `/o/organisations/${organisationId}/agents`,
+      name: "Agents",
       Icon: Users,
     },
     {
@@ -92,12 +92,12 @@ export function AsideLink({ path, name, Icon }: NavLinkProps) {
   const baseStyle =
     "text-white/70 flex items-center gap-2 px-4 py-2 text-sm hover:text-red transition-colors rounded-lg";
 
+  const isActive = useMatch(path);
+
   return (
     <NavLink
       to={path}
-      className={({ isActive }) =>
-        `${baseStyle} ${isActive ? activeStyle : ""}`
-      }
+      className={() => `${baseStyle} ${isActive ? activeStyle : ""}`}
     >
       <Icon size={20} />
       {name}

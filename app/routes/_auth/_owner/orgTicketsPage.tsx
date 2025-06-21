@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import Button from "components/utils/button";
-import { LoadingSection } from "components/utils/loadings";
 import {
   Calendar,
   Funnel,
@@ -12,20 +11,18 @@ import {
   Mic,
 } from "lucide-react";
 import { useOrganisationContext } from "store/organisation.context";
-import type { ITicket } from "types/ticket.types";
 import { TicketPriority, TicketState, TicketType } from "types/ticket.types";
 import { ticketTypeIcons } from "constants/typeIcons";
-import { openAIApiKey } from "utils/env";
-import dayjs from "dayjs";
 import { useDebounce } from "~/hooks/useDebounce";
+import CreateTicketModal from "components/modals/createTicketModal";
+import TicketsTable from "components/table/ticketsTable";
 
 type FilterType = "type" | "source" | "priority" | "date" | "status" | null;
 
 export default function OrgTicketsPage() {
-  const { tickets, agents, loading: isLoading } = useOrganisationContext();
+  const { tickets, loading: isLoading } = useOrganisationContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterType>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
@@ -37,15 +34,6 @@ export default function OrgTicketsPage() {
       start: null as Date | null,
       end: null as Date | null,
     },
-  });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    priority: TicketPriority.MEDIUM,
-    state: TicketState.OPEN,
-    type: TicketType.TICKET,
-    assignedTo: "",
   });
 
   // Debounced search
@@ -164,101 +152,6 @@ export default function OrgTicketsPage() {
     );
   }
 
-  function handleInputChange(
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-
-  async function handleSubmit() {
-    // TODO: Implement ticket creation
-    handleCloseModal();
-  }
-
-  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsProcessing(true);
-    try {
-      // First, transcribe the audio using OpenAI
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("model", "whisper-1");
-
-      const transcriptionResponse = await fetch(
-        "https://api.openai.com/v1/audio/transcriptions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${openAIApiKey}`,
-          },
-          body: formData,
-        }
-      );
-
-      const transcriptionData = await transcriptionResponse.json();
-      const transcription = transcriptionData.text;
-
-      // Then, use GPT to generate ticket information
-      const gptResponse = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${openAIApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are a helpful assistant that creates ticket information from audio transcriptions. Extract a title, description, and suggest a priority (HIGH, MEDIUM, or LOW), and type (TICKET, INCIDENT, REQUEST, PROBLEM, SUGGESTION, OTHER), and assignedTo (this is the from the agents list of the agent that should be assigned to the ticket), based on the content. Format the response as JSON with fields: title, description, priority, type, assignedTo.",
-              },
-              {
-                role: "user",
-                content: `Transcription: ${transcription}, agents ID: ${agents?.map(
-                  (agent) => agent.id
-                )} => assignedTo has to be from the agents list`,
-              },
-            ],
-            response_format: { type: "json_object" },
-          }),
-        }
-      );
-
-      const gptData = await gptResponse.json();
-      const ticketInfo = JSON.parse(gptData.choices[0].message.content);
-
-      // Update the form with the generated information
-      setFormData((prev) => ({
-        ...prev,
-        title: ticketInfo.title,
-        description: ticketInfo.description,
-        priority: ticketInfo.priority,
-        type: ticketInfo.type,
-        assignedTo: ticketInfo.assignedTo || "",
-      }));
-
-      // Close AI modal and open the ticket creation modal
-      handleCloseAIModal();
-      handleOnOpenModal();
-    } catch (error) {
-      console.error("Error processing audio:", error);
-      alert("Error processing audio file. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
-  }
-
   return (
     <main>
       <article className="flex justify-between items-center border-b border-white/40 py-4 px-6">
@@ -348,104 +241,13 @@ export default function OrgTicketsPage() {
           )}
         </>
       </article>
-      <article className="flex-1 p-6">
-        {isLoading ? (
-          <LoadingSection />
-        ) : filteredTickets && filteredTickets.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead className="font-semibold">
-                <tr className="border-b border-white/40">
-                  <th className="text-left py-3 px-4 text-white/60">
-                    Ticket ID
-                  </th>
-                  <th className="text-left py-3 px-4 text-white/60">Title</th>
-                  <th className="text-left py-3 px-4 text-white/60">Type</th>
-                  <th className="text-left py-3 px-4 text-white/60">Status</th>
-                  <th className="text-left py-3 px-4 text-white/60">
-                    Priority
-                  </th>
-                  <th className="text-left py-3 px-4 text-white/60">
-                    Assigned To
-                  </th>
-                  <th className="text-left py-3 px-4 text-white/60">
-                    Request Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {filteredTickets.map((ticket: ITicket) => {
-                  const TypeIcon =
-                    ticketTypeIcons[ticket.type] ||
-                    ticketTypeIcons[TicketType.OTHER];
-                  return (
-                    <tr
-                      key={ticket.id}
-                      className="border-b border-white/20 hover:bg-white/5"
-                    >
-                      <td className="py-3 px-4">{ticket.documentId}</td>
-                      <td className="py-3 px-4">{ticket.title}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <TypeIcon size={16} className="text-white/60" />
-                          <span className="text-white/80">{ticket.type}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            ticket.state === "OPEN"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : ticket.state === "IN_PROGRESS"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : ticket.state === "RESOLVED"
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-gray-500/20 text-gray-400"
-                          }`}
-                        >
-                          {ticket.state}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-4 py-1 rounded-full text-xs ${
-                            ticket.priority === "HIGH"
-                              ? "bg-red-500/20 text-red-400"
-                              : ticket.priority === "MEDIUM"
-                              ? "bg-yellow-500/20 text-yellow-400"
-                              : "bg-green-500/20 text-green-400"
-                          }`}
-                        >
-                          {ticket.priority}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 flex items-center gap-2">
-                        <img
-                          src={ticket.assignedTo?.profile.url}
-                          alt=""
-                          className="w-6 h-6 rounded-full object-cover"
-                        />
-                        {ticket.assignedTo
-                          ? ticket.assignedTo.username
-                          : "Unassigned"}
-                      </td>
-                      <td className="py-3 px-4">
-                        {dayjs(ticket.createdAt).format("DD/MM/YYYY, HH:mm")}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-8 text-white/60">
-            {getActiveFiltersCount() > 0
-              ? "No tickets match your filters"
-              : "No tickets found"}
-          </div>
-        )}
-      </article>
+
+      <TicketsTable
+        tickets={filteredTickets}
+        isLoading={isLoading}
+        filteredTickets={filteredTickets}
+        getActiveFiltersCount={getActiveFiltersCount}
+      />
 
       {/* Filter Modals */}
       {activeFilter && (
@@ -687,153 +489,13 @@ export default function OrgTicketsPage() {
         </div>
       )}
 
-      {/* AI Modal */}
-      <div
-        className={`fixed top-0 right-0 h-full w-1/3 bg-black/95 border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
-          isAIModalOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="p-6 h-full flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Create Ticket with AI</h2>
-            <button
-              onClick={handleCloseAIModal}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept="audio/*"
-              className="hidden"
-            />
-            <Button
-              buttonText={isProcessing ? "Processing..." : "Upload Audio File"}
-              onPress={() => fileInputRef.current?.click()}
-              disabled={isProcessing}
-              className="w-full max-w-md"
-            />
-            <p className="mt-4 text-white/60 text-center">
-              Upload an audio file describing your ticket. We&apos;ll process it
-              and create a ticket for you.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Sliding Modal */}
-      <div
-        className={`fixed top-0 right-0 h-full w-1/3 bg-black/95 border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
-          isModalOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="p-6 h-full flex flex-col">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold">Create New Ticket</h2>
-            <button
-              onClick={handleCloseModal}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-            <div className="space-y-4 flex-1">
-              <div>
-                <label className="block text-sm font-medium mb-2">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                  placeholder="Enter ticket title"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 h-32 resize-none"
-                  placeholder="Enter ticket description"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Priority
-                </label>
-                <select
-                  name="priority"
-                  value={formData.priority}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value={TicketPriority.LOW}>Low</option>
-                  <option value={TicketPriority.MEDIUM}>Medium</option>
-                  <option value={TicketPriority.HIGH}>High</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
-                <select
-                  name="state"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value={TicketState.OPEN}>Open</option>
-                  <option value={TicketState.ASSIGNED}>Assigned</option>
-                  <option value={TicketState.IN_PROGRESS}>In Progress</option>
-                  <option value={TicketState.RESOLVED}>Resolved</option>
-                  <option value={TicketState.CLOSED}>Closed</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Assign To
-                </label>
-                <select
-                  name="assignedTo"
-                  value={formData.assignedTo}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value="">Unassigned</option>
-                  {agents?.map((agent) => (
-                    <option key={agent.id} value={agent.documentId}>
-                      {agent.username}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-white/20">
-              <Button
-                buttonText="Create Ticket"
-                onPress={handleSubmit}
-                className="w-full"
-              />
-            </div>
-          </form>
-        </div>
-      </div>
+      <CreateTicketModal
+        isModalOpen={isModalOpen}
+        isAIModalOpen={isAIModalOpen}
+        onCloseModal={handleCloseModal}
+        onCloseAIModal={handleCloseAIModal}
+        onOpenModal={handleOnOpenModal}
+      />
     </main>
   );
 }

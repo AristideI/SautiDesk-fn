@@ -35,8 +35,16 @@ export default [
         "routes/_auth/_owner/orgTicketsPage.tsx"
       ),
       route(
-        "o/organisations/:organisationId/manage-users",
+        "o/organisations/:organisationId/tickets/:ticketId",
+        "routes/_auth/_owner/viewTicketPage.tsx"
+      ),
+      route(
+        "o/organisations/:organisationId/agents",
         "routes/_auth/_owner/orgUsersPage.tsx"
+      ),
+      route(
+        "o/organisations/:organisationId/agents/:agentId",
+        "routes/_auth/_owner/viewAgentPage.tsx"
       ),
       route(
         "o/organisations/:organisationId/knowledge-base",

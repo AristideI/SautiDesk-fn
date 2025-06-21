@@ -4,7 +4,7 @@ import type { ITicket } from "./ticket.types";
 
 export interface IUser {
   id: number;
-  documentId?: string;
+  documentId: string;
   username: string;
   email: string;
   userRole: UserRole;

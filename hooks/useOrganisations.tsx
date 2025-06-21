@@ -25,8 +25,10 @@ export default function useOrganisations(ownerId?: string) {
       const organisations = await API.organisationHandler.findByPersonId(
         ownerId || user?.documentId || ""
       );
+      console.log(organisations);
       setOrganisations(organisations);
     } catch (error) {
+      console.log(error);
       toast.error("Failed to fetch organisations, Please refresh the page!");
     } finally {
       setLoading(false);
