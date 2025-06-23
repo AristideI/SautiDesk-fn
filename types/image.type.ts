@@ -18,6 +18,8 @@ interface ImageFormat {
 }
 
 export interface IImage {
+  profile: any;
+  photo: any;
   id: number;
   documentId: string;
   name: string;

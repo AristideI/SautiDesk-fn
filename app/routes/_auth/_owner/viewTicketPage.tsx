@@ -1,38 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import Button from "components/utils/button";
 import { LoadingSection } from "components/utils/loadings";
 import {
   ArrowLeft,
-  CheckCircle,
   MessageCircle,
   FileText,
   User,
-  Calendar,
-  Clock,
-  Tag,
   CheckSquare,
-  Square,
   X,
+  Calendar,
+  Tag,
+  AlertCircle,
+  Clock,
+  UserCheck,
+  Building,
+  Paperclip,
 } from "lucide-react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
 import { toast } from "react-toastify";
-import type { IMessage } from "types/message.type";
-import { TicketState, TicketPriority } from "types/ticket.types";
+import type { IComment } from "types/comment.type";
+import { TicketState } from "types/ticket.types";
 import { ticketTypeIcons } from "constants/typeIcons";
 import dayjs from "dayjs";
-import type { IConversation } from "types/conversation.type";
 import { useOrganisationContext } from "store/organisation.context";
+import { getPriorityColor, getStateColor } from "utils/getColors";
 
 type TabType = "tasks" | "conversation" | "notes";
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  createdAt: Date;
-}
 
 interface Note {
   id: string;
@@ -48,15 +43,38 @@ export default function ViewTicketPage() {
   const { tickets, loading } = useOrganisationContext();
   const ticket = tickets?.find((t) => t.documentId === ticketId);
 
-  const [activeTab, setActiveTab] = useState<TabType>("conversation");
-  const [messages, setMessages] = useState<IMessage[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>("tasks");
+  const [comments, setComments] = useState<IComment[]>([]);
+  const [newComment, setNewComment] = useState("");
   const [notes, setNotes] = useState<Note[]>([]);
-  const [newTask, setNewTask] = useState("");
   const [newNote, setNewNote] = useState("");
-  const [showNewTaskInput, setShowNewTaskInput] = useState(false);
-  const [showNewNoteInput, setShowNewNoteInput] = useState(false);
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+
+  // Fetch comments for this ticket
+  useEffect(() => {
+    if (ticketId && activeTab === "conversation") {
+      fetchComments();
+    }
+  }, [ticketId, activeTab]);
+
+  const fetchComments = async () => {
+    if (!ticketId) return;
+
+    setIsLoadingComments(true);
+    try {
+      const response = await API.commentHandler.findByTicketId(
+        ticket?.id || ""
+      );
+      setComments(Array.isArray(response) ? response : []);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      toast.error("Failed to load comments");
+      setComments([]);
+    } finally {
+      setIsLoadingComments(false);
+    }
+  };
 
   const handleCloseTicket = async () => {
     if (!ticket) return;
@@ -74,47 +92,26 @@ export default function ViewTicketPage() {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user) return;
+  const handleSendComment = async () => {
+    if (!newComment.trim() || !user || !ticketId) return;
 
-    const message: IMessage = {
-      id: Date.now(),
-      documentId: `msg_${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      conversation: {} as IConversation,
-      sender: user,
-      content: newMessage,
-      ticketId: ticketId!,
-    };
+    try {
+      const commentData = {
+        content: newComment,
+        author: user.documentId!,
+        ticket: ticketId,
+      };
 
-    setMessages((prev) => [...prev, message]);
-    setNewMessage("");
-    toast.success("Message sent");
-  };
+      await API.commentHandler.create(commentData);
+      setNewComment("");
+      toast.success("Comment sent");
 
-  const handleAddTask = () => {
-    if (!newTask.trim()) return;
-
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask,
-      completed: false,
-      createdAt: new Date(),
-    };
-
-    setTasks((prev) => [...prev, task]);
-    setNewTask("");
-    setShowNewTaskInput(false);
-    toast.success("Task added");
-  };
-
-  const handleToggleTask = (taskId: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-    );
+      // Refresh comments
+      await fetchComments();
+    } catch (error) {
+      console.error("Error sending comment:", error);
+      toast.error("Failed to send comment");
+    }
   };
 
   const handleAddNote = () => {
@@ -129,36 +126,8 @@ export default function ViewTicketPage() {
 
     setNotes((prev) => [...prev, note]);
     setNewNote("");
-    setShowNewNoteInput(false);
+    setShowNoteModal(false);
     toast.success("Note added");
-  };
-
-  const getPriorityColor = (priority: TicketPriority) => {
-    switch (priority) {
-      case TicketPriority.HIGH:
-        return "text-red-400 bg-red-500/20";
-      case TicketPriority.MEDIUM:
-        return "text-yellow-400 bg-yellow-500/20";
-      case TicketPriority.LOW:
-        return "text-green-400 bg-green-500/20";
-      default:
-        return "text-gray-400 bg-gray-500/20";
-    }
-  };
-
-  const getStateColor = (state: TicketState) => {
-    switch (state) {
-      case TicketState.OPEN:
-        return "text-blue-400 bg-blue-500/20";
-      case TicketState.IN_PROGRESS:
-        return "text-yellow-400 bg-yellow-500/20";
-      case TicketState.RESOLVED:
-        return "text-green-400 bg-green-500/20";
-      case TicketState.CLOSED:
-        return "text-gray-400 bg-gray-500/20";
-      default:
-        return "text-gray-400 bg-gray-500/20";
-    }
   };
 
   if (loading) {
@@ -210,64 +179,9 @@ export default function ViewTicketPage() {
         </div>
       </div>
 
-      {/* Ticket Info */}
-      <div className="bg-black/30 border-b border-white/20 p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <User size={16} className="text-white/60" />
-            <span className="text-white/80">
-              Owner: {ticket?.ownedBy?.username}
-            </span>
-          </div>
-          {ticket.assignedTo && (
-            <div className="flex items-center gap-2">
-              <User size={16} className="text-white/60" />
-              <span className="text-white/80">
-                Assigned: {ticket?.assignedTo?.username}
-              </span>
-            </div>
-          )}
-          <div className="flex items-center gap-2">
-            <Calendar size={16} className="text-white/60" />
-            <span className="text-white/80">
-              Created: {dayjs(ticket.createdAt).format("MMM DD, YYYY")}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock size={16} className="text-white/60" />
-            <span className="text-white/80">
-              Updated: {dayjs(ticket.updatedAt).format("MMM DD, YYYY")}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4 mt-3">
-          <span
-            className={`px-3 py-1 rounded-full text-xs ${getPriorityColor(
-              ticket.priority
-            )}`}
-          >
-            {ticket.priority} Priority
-          </span>
-          <span
-            className={`px-3 py-1 rounded-full text-xs ${getStateColor(
-              ticket.state
-            )}`}
-          >
-            {ticket.state}
-          </span>
-          {ticket.tags && (
-            <div className="flex items-center gap-2">
-              <Tag size={14} className="text-white/60" />
-              <span className="text-white/80 text-sm">{ticket.tags}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Tabs */}
       <div className="bg-black/20 border-b border-white/20">
-        <div className="flex">
+        <div className="flex justify-center">
           <button
             onClick={() => setActiveTab("tasks")}
             className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors ${
@@ -276,8 +190,8 @@ export default function ViewTicketPage() {
                 : "border-transparent text-white/60 hover:text-white"
             }`}
           >
-            <CheckSquare size={16} />
-            <span>Tasks</span>
+            <FileText size={16} />
+            <span>Ticket Info</span>
           </button>
           <button
             onClick={() => setActiveTab("conversation")}
@@ -288,7 +202,7 @@ export default function ViewTicketPage() {
             }`}
           >
             <MessageCircle size={16} />
-            <span>Conversation</span>
+            <span>Comments</span>
           </button>
           <button
             onClick={() => setActiveTab("notes")}
@@ -298,7 +212,7 @@ export default function ViewTicketPage() {
                 : "border-transparent text-white/60 hover:text-white"
             }`}
           >
-            <FileText size={16} />
+            <CheckSquare size={16} />
             <span>Notes</span>
           </button>
         </div>
@@ -307,65 +221,147 @@ export default function ViewTicketPage() {
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
         {activeTab === "tasks" && (
-          <div className="h-full flex flex-col p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Tasks</h3>
-              <Button
-                buttonText="Add Task"
-                onPress={() => setShowNewTaskInput(true)}
-              />
-            </div>
-
-            {showNewTaskInput && (
-              <div className="flex items-center gap-2 mb-4 p-4 bg-white/5 rounded-lg">
-                <input
-                  type="text"
-                  value={newTask}
-                  onChange={(e) => setNewTask(e.target.value)}
-                  placeholder="Enter task description..."
-                  className="flex-1 px-3 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                  onKeyPress={(e) => e.key === "Enter" && handleAddTask()}
-                />
-                <Button buttonText="Add" onPress={handleAddTask} />
-                <button
-                  onClick={() => setShowNewTaskInput(false)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-
-            <div className="flex-1 overflow-y-auto space-y-2">
-              {tasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
-                >
-                  <button
-                    onClick={() => handleToggleTask(task.id)}
-                    className="flex-shrink-0"
-                  >
-                    {task.completed ? (
-                      <CheckCircle size={20} className="text-green" />
-                    ) : (
-                      <Square size={20} className="text-white/60" />
-                    )}
-                  </button>
-                  <span
-                    className={`flex-1 ${
-                      task.completed
-                        ? "line-through text-white/40"
-                        : "text-white/80"
-                    }`}
-                  >
-                    {task.title}
-                  </span>
-                  <span className="text-xs text-white/40">
-                    {dayjs(task.createdAt).format("MMM DD")}
-                  </span>
+          <div className="h-full overflow-y-auto p-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Basic Information */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">
+                  Basic Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Title
+                    </label>
+                    <p className="text-white/80">{ticket.title}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Type
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <TypeIcon size={16} className="text-white/60" />
+                      <span className="text-white/80">{ticket.type}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Priority
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <AlertCircle
+                        size={16}
+                        className={getPriorityColor(ticket.priority)}
+                      />
+                      <span className={getPriorityColor(ticket.priority)}>
+                        {ticket.priority}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      State
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Clock
+                        size={16}
+                        className={getStateColor(ticket.state)}
+                      />
+                      <span className={getStateColor(ticket.state)}>
+                        {ticket.state}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Description */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Description</h3>
+                <p className="text-white/80 whitespace-pre-wrap">
+                  {ticket.description}
+                </p>
+              </div>
+
+              {/* Assignment Information */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Assignment</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Owned By
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <User size={16} className="text-white/60" />
+                      <span className="text-white/80">
+                        {ticket.ownedBy?.username || "Unknown"}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Assigned To
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <UserCheck size={16} className="text-white/60" />
+                      <span className="text-white/80">
+                        {ticket.assignedTo?.username || "Unassigned"}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Organisation
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Building size={16} className="text-white/60" />
+                      <span className="text-white/80">
+                        {ticket.organisation?.name || "Unknown"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Metadata */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Metadata</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Created At
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-white/60" />
+                      <span className="text-white/80">
+                        {dayjs(ticket.createdAt).format("MMM DD, YYYY HH:mm")}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-white/60 mb-1 block">
+                      Updated At
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-white/60" />
+                      <span className="text-white/80">
+                        {dayjs(ticket.updatedAt).format("MMM DD, YYYY HH:mm")}
+                      </span>
+                    </div>
+                  </div>
+                  {ticket.tags && (
+                    <div>
+                      <label className="text-sm text-white/60 mb-1 block">
+                        Tags
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <Tag size={16} className="text-white/60" />
+                        <span className="text-white/80">{ticket.tags}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -373,39 +369,68 @@ export default function ViewTicketPage() {
         {activeTab === "conversation" && (
           <div className="h-full flex flex-col">
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map((message) => (
-                <div key={message.id} className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-green/20 rounded-full flex items-center justify-center">
-                    <User size={16} className="text-green" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-white/80">
-                        {message?.sender?.username}
-                      </span>
-                      <span className="text-xs text-white/40">
-                        {dayjs(message.createdAt).format("MMM DD, HH:mm")}
-                      </span>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-3">
-                      <p className="text-white/80">{message.content}</p>
-                    </div>
-                  </div>
+              {isLoadingComments ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-white/60">Loading comments...</div>
                 </div>
-              ))}
+              ) : comments.length === 0 ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-white/60">No comments yet</div>
+                </div>
+              ) : (
+                comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-green/20 rounded-full flex items-center justify-center">
+                      {comment.author?.profile?.profile ? (
+                        <img
+                          src={comment.author?.profile?.url}
+                          alt="avatar"
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User size={25} className="text-green" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-white/80">
+                            {comment.author?.username || "Unknown User"}
+                          </span>
+                          <span className="text-xs text-white/40">
+                            {dayjs(comment.createdAt).format("MMM DD, HH:mm")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {comment.attachments &&
+                            comment.attachments.length > 0 && (
+                              <div className="flex items-center gap-1 text-white/60 text-xs">
+                                <Paperclip size={12} />
+                                <span>{comment.attachments.length}</span>
+                              </div>
+                            )}
+                        </div>
+                      </div>
+                      <div className="bg-white/5 rounded-lg p-3">
+                        <p className="text-white/80">{comment.content}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             <div className="p-6 border-t border-white/20">
               <div className="flex gap-3">
                 <input
                   type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your message..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
                   className="flex-1 px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendComment()}
                 />
-                <Button buttonText="Send" onPress={handleSendMessage} />
+                <Button buttonText="Send" onPress={handleSendComment} />
               </div>
             </div>
           </div>
@@ -417,47 +442,75 @@ export default function ViewTicketPage() {
               <h3 className="text-lg font-semibold">Notes</h3>
               <Button
                 buttonText="Add Note"
-                onPress={() => setShowNewNoteInput(true)}
+                onPress={() => setShowNoteModal(true)}
               />
             </div>
 
-            {showNewNoteInput && (
-              <div className="mb-4 p-4 bg-white/5 rounded-lg">
-                <textarea
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                  placeholder="Enter your note..."
-                  className="w-full px-3 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 h-24 resize-none"
-                />
-                <div className="flex items-center gap-2 mt-3">
-                  <Button buttonText="Add Note" onPress={handleAddNote} />
-                  <button
-                    onClick={() => setShowNewNoteInput(false)}
-                    className="px-4 py-2 text-white/60 hover:text-white transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-
             <div className="flex-1 overflow-y-auto space-y-4">
-              {notes.map((note) => (
-                <div key={note.id} className="bg-white/5 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-white/80">
-                      {note.author}
-                    </span>
-                    <span className="text-xs text-white/40">
-                      {dayjs(note.createdAt).format("MMM DD, HH:mm")}
-                    </span>
-                  </div>
-                  <p className="text-white/60">{note.content}</p>
+              {notes.length === 0 ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="text-white/60">No notes yet</div>
                 </div>
-              ))}
+              ) : (
+                notes.map((note) => (
+                  <div key={note.id} className="bg-white/5 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-white/80">
+                        {note.author}
+                      </span>
+                      <span className="text-xs text-white/40">
+                        {dayjs(note.createdAt).format("MMM DD, HH:mm")}
+                      </span>
+                    </div>
+                    <p className="text-white/60">{note.content}</p>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
+      </div>
+
+      {/* Note Modal */}
+      <div
+        className={`fixed top-0 right-0 h-full w-1/3 bg-black border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
+          showNoteModal ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Add Note</h2>
+            <button
+              onClick={() => setShowNoteModal(false)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="flex-1">
+            <textarea
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="Enter your note..."
+              className="w-full h-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 resize-none"
+            />
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button
+              buttonText="Add Note"
+              onPress={handleAddNote}
+              className="flex-1"
+            />
+            <Button
+              buttonText="Cancel"
+              onPress={() => setShowNoteModal(false)}
+              variant="secondary"
+              className="flex-1"
+            />
+          </div>
+        </div>
       </div>
     </main>
   );
