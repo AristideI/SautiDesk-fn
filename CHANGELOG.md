@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.4.0...v0.5.0) (2025-06-25)
+
+
+### Features
+
+* handle emails and sms ([25f73a8](https://github.com/AristideI/SautiDesk-fn/commit/25f73a875fecf36998e94ed049365b8e2ed7eb7a))
+* handle mails and sms after ticket creation ([38402d5](https://github.com/AristideI/SautiDesk-fn/commit/38402d5e4b80df7c20291b3fb20a589f505cce92))
+
 ## [0.4.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.3.0...v0.4.0) (2025-06-19)
 
 
