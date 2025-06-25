@@ -10,7 +10,7 @@ interface OrganisationContextType {
   tickets: ITicket[] | null;
   agents: IUser[] | null;
   loading: boolean;
-  loadOrganisation: (id: string) => Promise<void>;
+  loadOrganisation: () => Promise<void>;
 }
 
 const OrganisationContext = createContext<OrganisationContextType>({

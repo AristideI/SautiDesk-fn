@@ -1,4 +1,4 @@
-import { authHeaders } from "api";
+import { API, authHeaders } from "api";
 import strapi from "./strapi";
 import type { ITicket, ITicketCreate, ITicketUpdate } from "types/ticket.types";
 
@@ -72,7 +72,7 @@ export const TicketHandler = {
     return data.data;
   },
 
-  async create(ticketData: ITicketCreate) {
+  async create(ticketData: ITicketCreate, organisationId: string) {
     const { data } = await strapi.post<{
       data: ITicket;
     }>(
@@ -82,6 +82,20 @@ export const TicketHandler = {
         headers: authHeaders(),
       }
     );
+    // await API.smsHandler.sendSMS(
+    //   "+250785478021",
+    //   `Ticket created: ${
+    //     data.data.title
+    //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
+    // );
+    // await API.smsHandler.sendMail(
+    //   "i.aristide08@gmail.com",
+    //   "Ticket created",
+    //   `Ticket created: ${
+    //     data.data.title
+    //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
+    // );
+
     return data.data;
   },
 

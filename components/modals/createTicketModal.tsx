@@ -38,8 +38,9 @@ export default function CreateTicketModal({
   onOpenModal,
 }: CreateTicketModalProps) {
   const { user } = useAuthContext();
-  const { organisation, agents } = useOrganisationContext();
+  const { organisation, agents, loadOrganisation } = useOrganisationContext();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAssignedToOpen, setIsAssignedToOpen] = useState(false);
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -90,11 +91,16 @@ export default function CreateTicketModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isSubmitting) {
+      return; // Prevent multiple submissions
+    }
+
     if (!user || !organisation) {
       toast.error("User or organisation not found");
       return;
     }
 
+    setIsSubmitting(true);
     try {
       const ticketData = {
         title: formData.title,
@@ -108,7 +114,8 @@ export default function CreateTicketModal({
         source: TicketSource.MANUAL,
       };
 
-      await API.ticketHandler.create(ticketData);
+      await API.ticketHandler.create(ticketData, organisation.documentId);
+      loadOrganisation();
       toast.success("Ticket created successfully!");
 
       // Reset form
@@ -125,6 +132,8 @@ export default function CreateTicketModal({
     } catch (error) {
       console.error("Error creating ticket:", error);
       toast.error("Failed to create ticket. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -162,6 +171,8 @@ export default function CreateTicketModal({
       // Close AI modal and open regular modal
       onCloseAIModal();
       onOpenModal();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      onCreate();
 
       toast.success(
         "Audio processed successfully! Please review and submit the ticket."
@@ -191,6 +202,13 @@ export default function CreateTicketModal({
     onCloseAIModal();
     setIsProcessing(false);
   };
+
+  function onCreate() {
+    const button = document.getElementById("create-ticket-button");
+    if (button) {
+      button.click();
+    }
+  }
 
   return (
     <>
@@ -284,7 +302,9 @@ export default function CreateTicketModal({
                 <div className="relative">
                   <div
                     ref={typeRef}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setIsTypeOpen((prev) => !prev);
                     }}
                     className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
@@ -300,7 +320,11 @@ export default function CreateTicketModal({
                       {Object.values(TicketType).map((type) => (
                         <button
                           key={type}
-                          onClick={() => handleTypeClick(type)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleTypeClick(type);
+                          }}
                           className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 w-full"
                         >
                           <span className="text-sm">{type}</span>
@@ -317,9 +341,14 @@ export default function CreateTicketModal({
                 </label>
                 <div className="flex items-center justify-between gap-2">
                   <button
-                    onClick={() =>
-                      setFormData({ ...formData, priority: TicketPriority.LOW })
-                    }
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setFormData({
+                        ...formData,
+                        priority: TicketPriority.LOW,
+                      });
+                    }}
                     className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
                       formData.priority === TicketPriority.LOW
                         ? "border border-green-500"
@@ -330,12 +359,14 @@ export default function CreateTicketModal({
                     <p className="text-sm text-white/60">Low</p>
                   </button>
                   <button
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setFormData({
                         ...formData,
                         priority: TicketPriority.MEDIUM,
-                      })
-                    }
+                      });
+                    }}
                     className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
                       formData.priority === TicketPriority.MEDIUM
                         ? "border border-yellow-500"
@@ -346,12 +377,14 @@ export default function CreateTicketModal({
                     <p className="text-sm text-white/60">Medium</p>
                   </button>
                   <button
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setFormData({
                         ...formData,
                         priority: TicketPriority.HIGH,
-                      })
-                    }
+                      });
+                    }}
                     className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
                       formData.priority === TicketPriority.HIGH
                         ? "border border-red-500"
@@ -369,7 +402,9 @@ export default function CreateTicketModal({
                 <div className="relative">
                   <div
                     ref={statusRef}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setIsStatusOpen((prev) => !prev);
                     }}
                     className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
@@ -385,7 +420,11 @@ export default function CreateTicketModal({
                       {Object.values(TicketState).map((state) => (
                         <button
                           key={state}
-                          onClick={() => handleStatusClick(state)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleStatusClick(state);
+                          }}
                           className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 w-full"
                         >
                           <span className="text-sm">{state}</span>
@@ -401,7 +440,9 @@ export default function CreateTicketModal({
                 <div className="relative">
                   <div
                     ref={assignedToRef}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setIsAssignedToOpen((prev) => !prev);
                     }}
                     className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
@@ -443,7 +484,9 @@ export default function CreateTicketModal({
                   {isAssignedToOpen && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-black border border-white/20 rounded-lg z-10 max-h-48 overflow-y-auto">
                       <div
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           setFormData({ ...formData, assignedTo: "" });
                           setIsAssignedToOpen(false);
                         }}
@@ -456,7 +499,9 @@ export default function CreateTicketModal({
                         return (
                           <button
                             key={agent.documentId}
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               handleAssignedToClick(agent.documentId);
                             }}
                             className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 w-full"
@@ -480,13 +525,14 @@ export default function CreateTicketModal({
 
             <div className="pt-6 border-t border-white/20">
               <Button
-                buttonText="Create Ticket"
-                onPress={() => {
-                  const fakeEvent = {
-                    preventDefault: () => {},
-                  } as React.FormEvent;
-                  handleSubmit(fakeEvent);
+                id="create-ticket-button"
+                buttonText={isSubmitting ? "Creating..." : "Create Ticket"}
+                onPress={(e) => {
+                  e?.preventDefault();
+                  handleSubmit(e as React.FormEvent);
                 }}
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
                 className="w-full"
               />
             </div>

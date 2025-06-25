@@ -1,7 +1,7 @@
 import { LoadingSpinner } from "./loadings";
 
 interface ButtonProps {
-  onPress: () => void | Promise<void>;
+  onPress: (e?: React.FormEvent) => void | Promise<void>;
   buttonText: string;
   disabled?: boolean;
   className?: string;
@@ -9,6 +9,7 @@ interface ButtonProps {
   isLoading?: boolean;
   variant?: "primary" | "secondary";
   icon?: React.ReactNode;
+  id?: string;
 }
 
 export default function Button({
@@ -20,6 +21,7 @@ export default function Button({
   isLoading = false,
   variant = "primary",
   icon,
+  id,
 }: ButtonProps) {
   const baseStyles = `px-6 py-2 flex gap-2 text-sm justify-center items-center rounded-lg focus:outline-none transition-all duration-300 cursor-pointer ${
     fullWidth ? "w-full" : ""
@@ -32,6 +34,7 @@ export default function Button({
 
   return (
     <button
+      id={id}
       onClick={onPress}
       disabled={disabled || isLoading}
       className={`${baseStyles} ${variantStyles[variant]} ${className}`}
