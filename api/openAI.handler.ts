@@ -33,12 +33,11 @@ export const OpenAIHandler = {
         messages: [
           {
             role: "system",
-            content:
-              "You are a helpful assistant that creates ticket information from audio transcriptions. Extract a title, description, and suggest a priority (HIGH, MEDIUM, or LOW), and type (TICKET, INCIDENT, REQUEST, PROBLEM, SUGGESTION, OTHER), and assignedTo (this is the from the agents list of the agent that should be assigned to the ticket), based on the content. Format the response as JSON with fields: title, description, priority, type, assignedTo.",
+            content: `You are a helpful assistant that creates ticket information from audio transcriptions. Extract a title, description, and suggest a priority (HIGH, MEDIUM, or LOW), and type (TICKET, INCIDENT, REQUEST, PROBLEM, SUGGESTION, OTHER), and assignedTo (this is the from the agents list of the agent that should be assigned to the ticket), based on the content. Format the response as JSON with fields: title, description, priority, type, assignedTo. here are agents ID: ${agents}`,
           },
           {
             role: "user",
-            content: `Transcription: ${transcription}, agents ID: ${agents} => assignedTo has to be from the agents list`,
+            content: `Transcription: ${transcription}`,
           },
         ],
         response_format: { type: "json_object" },

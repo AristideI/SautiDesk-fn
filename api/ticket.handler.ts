@@ -75,9 +75,13 @@ export const TicketHandler = {
   async create(ticketData: ITicketCreate) {
     const { data } = await strapi.post<{
       data: ITicket;
-    }>(`/tickets`, ticketData, {
-      headers: authHeaders(),
-    });
+    }>(
+      `/tickets`,
+      { data: ticketData },
+      {
+        headers: authHeaders(),
+      }
+    );
     return data.data;
   },
 

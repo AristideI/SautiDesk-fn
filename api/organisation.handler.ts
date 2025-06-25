@@ -40,6 +40,7 @@ export const OrganisationHandler = {
       params: {
         "populate[agents][populate][profile][populate]": "*",
         "populate[tickets][populate][assignedTo][populate]": "*",
+        "populate[tickets][populate][ownedBy][populate]": "*",
       },
     });
     return data.data;

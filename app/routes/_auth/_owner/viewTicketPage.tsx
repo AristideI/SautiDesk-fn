@@ -40,7 +40,7 @@ export default function ViewTicketPage() {
   const { ticketId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuthContext();
-  const { tickets, loading } = useOrganisationContext();
+  const { tickets, loading, organisation } = useOrganisationContext();
   const ticket = tickets?.find((t) => t.documentId === ticketId);
 
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
@@ -160,16 +160,11 @@ export default function ViewTicketPage() {
               <ArrowLeft size={20} />
               <span>Ticket List</span>
             </button>
-            <div className="w-px h-6 bg-white/20" />
-            <div className="flex items-center gap-2">
-              <TypeIcon size={20} className="text-white/60" />
-              <span className="text-white/80">{ticket.type}</span>
-            </div>
           </div>
-
-          <div className="flex items-center gap-4">
+          <div>
             <h1 className="text-xl font-semibold">{ticket.title}</h1>
-            <div className="w-px h-6 bg-white/20" />
+          </div>
+          <div className="flex items-center gap-4">
             <Button
               buttonText="Submit as Closed"
               onPress={handleCloseTicket}
@@ -316,7 +311,7 @@ export default function ViewTicketPage() {
                     <div className="flex items-center gap-2">
                       <Building size={16} className="text-white/60" />
                       <span className="text-white/80">
-                        {ticket.organisation?.name || "Unknown"}
+                        {organisation?.name || "Unknown"}
                       </span>
                     </div>
                   </div>
@@ -371,7 +366,7 @@ export default function ViewTicketPage() {
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {isLoadingComments ? (
                 <div className="flex items-center justify-center h-32">
-                  <div className="text-white/60">Loading comments...</div>
+                  <div className="text-white/60">Loading comments. ..</div>
                 </div>
               ) : comments.length === 0 ? (
                 <div className="flex items-center justify-center h-32">

@@ -1,5 +1,5 @@
 import Button from "components/utils/button";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import {
   TicketPriority,
   TicketState,
@@ -40,6 +40,9 @@ export default function CreateTicketModal({
   const { user } = useAuthContext();
   const { organisation, agents } = useOrganisationContext();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAssignedToOpen, setIsAssignedToOpen] = useState(false);
+  const [isTypeOpen, setIsTypeOpen] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -50,6 +53,9 @@ export default function CreateTicketModal({
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const assignedToRef = useRef<HTMLDivElement>(null);
+  const typeRef = useRef<HTMLDivElement>(null);
+  const statusRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -62,6 +68,24 @@ export default function CreateTicketModal({
       [name]: value,
     }));
   };
+
+  async function handleAssignedToClick(documentId: string) {
+    setFormData({ ...formData, assignedTo: documentId });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    setIsAssignedToOpen(false);
+  }
+
+  async function handleTypeClick(type: TicketType) {
+    setFormData({ ...formData, type });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    setIsTypeOpen(false);
+  }
+
+  async function handleStatusClick(state: TicketState) {
+    setFormData({ ...formData, state });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    setIsStatusOpen(false);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,72 +280,201 @@ export default function CreateTicketModal({
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Type</label>
-                <select
-                  name="type"
-                  value={formData.type}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value={TicketType.TICKET}>Ticket</option>
-                  <option value={TicketType.INCIDENT}>Incident</option>
-                  <option value={TicketType.QUESTION}>Question</option>
-                  <option value={TicketType.REQUEST}>Request</option>
-                  <option value={TicketType.PROBLEM}>Problem</option>
-                  <option value={TicketType.SUGGESTION}>Suggestion</option>
-                  <option value={TicketType.OTHER}>Other</option>
-                </select>
+                <h2 className="block text-sm font-medium mb-2">Type</h2>
+                <div className="relative">
+                  <div
+                    ref={typeRef}
+                    onClick={() => {
+                      setIsTypeOpen((prev) => !prev);
+                    }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{formData.type}</span>
+                      <ChevronDown size={16} className="text-white/60" />
+                    </div>
+                  </div>
+
+                  {isTypeOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-black border border-white/20 rounded-lg z-10">
+                      {Object.values(TicketType).map((type) => (
+                        <button
+                          key={type}
+                          onClick={() => handleTypeClick(type)}
+                          className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 w-full"
+                        >
+                          <span className="text-sm">{type}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Priority
                 </label>
-                <select
-                  name="priority"
-                  value={formData.priority}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value={TicketPriority.LOW}>Low</option>
-                  <option value={TicketPriority.MEDIUM}>Medium</option>
-                  <option value={TicketPriority.HIGH}>High</option>
-                </select>
+                <div className="flex items-center justify-between gap-2">
+                  <button
+                    onClick={() =>
+                      setFormData({ ...formData, priority: TicketPriority.LOW })
+                    }
+                    className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
+                      formData.priority === TicketPriority.LOW
+                        ? "border border-green-500"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <p className="text-sm text-white/60">Low</p>
+                  </button>
+                  <button
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        priority: TicketPriority.MEDIUM,
+                      })
+                    }
+                    className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
+                      formData.priority === TicketPriority.MEDIUM
+                        ? "border border-yellow-500"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full" />
+                    <p className="text-sm text-white/60">Medium</p>
+                  </button>
+                  <button
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        priority: TicketPriority.HIGH,
+                      })
+                    }
+                    className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
+                      formData.priority === TicketPriority.HIGH
+                        ? "border border-red-500"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-2 h-2 bg-red-500 rounded-full" />
+                    <p className="text-sm text-white/60">High</p>
+                  </button>
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Status</label>
-                <select
-                  name="state"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value={TicketState.OPEN}>Open</option>
-                  <option value={TicketState.ASSIGNED}>Assigned</option>
-                  <option value={TicketState.IN_PROGRESS}>In Progress</option>
-                  <option value={TicketState.RESOLVED}>Resolved</option>
-                  <option value={TicketState.CLOSED}>Closed</option>
-                </select>
+                <h2 className="block text-sm font-medium mb-2">Status</h2>
+                <div className="relative">
+                  <div
+                    ref={statusRef}
+                    onClick={() => {
+                      setIsStatusOpen((prev) => !prev);
+                    }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{formData.state}</span>
+                      <ChevronDown size={16} className="text-white/60" />
+                    </div>
+                  </div>
+
+                  {isStatusOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-black border border-white/20 rounded-lg z-10">
+                      {Object.values(TicketState).map((state) => (
+                        <button
+                          key={state}
+                          onClick={() => handleStatusClick(state)}
+                          className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 w-full"
+                        >
+                          <span className="text-sm">{state}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Assign To
-                </label>
-                <select
-                  name="assignedTo"
-                  value={formData.assignedTo}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
-                >
-                  <option value="">Unassigned</option>
-                  {agents?.map((agent) => (
-                    <option key={agent.id} value={agent.documentId}>
-                      {agent.username}
-                    </option>
-                  ))}
-                </select>
+                <h2 className="block text-sm font-medium mb-2">Assign To</h2>
+                <div className="relative">
+                  <div
+                    ref={assignedToRef}
+                    onClick={() => {
+                      setIsAssignedToOpen((prev) => !prev);
+                    }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
+                  >
+                    {formData.assignedTo ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {agents?.find(
+                            (agent) => agent.documentId === formData.assignedTo
+                          )?.profile?.url && (
+                            <img
+                              src={
+                                agents.find(
+                                  (agent) =>
+                                    agent.documentId === formData.assignedTo
+                                )?.profile?.url
+                              }
+                              alt="Assigned To"
+                              className="w-6 h-6 rounded-full object-cover"
+                            />
+                          )}
+                          <span className="text-sm">
+                            {agents?.find(
+                              (agent) =>
+                                agent.documentId === formData.assignedTo
+                            )?.username || "Unknown"}
+                          </span>
+                        </div>
+                        <ChevronDown size={16} className="text-white/60" />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-white/60">Unassigned</p>
+                        <ChevronDown size={16} className="text-white/60" />
+                      </div>
+                    )}
+                  </div>
+
+                  {isAssignedToOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-black border border-white/20 rounded-lg z-10 max-h-48 overflow-y-auto">
+                      <div
+                        onClick={() => {
+                          setFormData({ ...formData, assignedTo: "" });
+                          setIsAssignedToOpen(false);
+                        }}
+                        className="px-4 py-2 hover:bg-white/10 cursor-pointer text-sm"
+                      >
+                        Unassigned
+                      </div>
+
+                      {agents?.map((agent) => {
+                        return (
+                          <button
+                            key={agent.documentId}
+                            onClick={() => {
+                              handleAssignedToClick(agent.documentId);
+                            }}
+                            className="px-4 py-2 hover:bg-white/10 cursor-pointer flex items-center gap-2 w-full"
+                          >
+                            {agent.profile?.url && (
+                              <img
+                                src={agent.profile.url}
+                                alt={agent.username}
+                                className="w-6 h-6 rounded-full object-cover"
+                              />
+                            )}
+                            <span className="text-sm">{agent.username}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
