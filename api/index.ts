@@ -4,6 +4,7 @@ import { OrganisationHandler } from "./organisation.handler";
 import { TicketHandler } from "./ticket.handler";
 import { OpenAIHandler } from "./openAI.handler";
 import { CommentHandler } from "./comment.handler";
+import { SmsHandler } from "./sms.handler";
 
 export const authHeaders = () => ({
   Authorization: `Bearer ${getAuthToken()}`,
@@ -15,4 +16,5 @@ export const API = {
   ticketHandler: TicketHandler,
   openAIHandler: OpenAIHandler,
   commentHandler: CommentHandler,
+  smsHandler: SmsHandler,
 };
