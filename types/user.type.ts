@@ -12,6 +12,7 @@ export interface IUser {
   phone?: string;
   organisation?: IOrganisation;
   tickets?: ITicket[];
+  createdAt: string;
 }
 
 export interface ILogInUser {

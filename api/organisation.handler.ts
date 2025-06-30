@@ -39,8 +39,12 @@ export const OrganisationHandler = {
       headers: authHeaders(),
       params: {
         "populate[agents][populate][profile][populate]": "*",
-        "populate[tickets][populate][assignedTo][populate]": "*",
+        "populate[tickets][populate][assignedTo][populate][profile][populate]":
+          "*",
+        "populate[tickets][populate][assignedTo][populate][agent][populate]":
+          "*",
         "populate[tickets][populate][ownedBy][populate]": "*",
+        "populate[agents][populate][agent][populate]": "*",
       },
     });
     return data.data;

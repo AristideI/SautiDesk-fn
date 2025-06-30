@@ -12,6 +12,7 @@ const defaultWorkerPopulates = {
   "populate[profile]": "*",
   "populate[tickets]": "*",
   "populate[organisation]": "*",
+  "populate[agent][populate]": "*",
 };
 
 export const UserHandler = {
