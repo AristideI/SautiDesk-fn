@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.5.0...v0.6.0) (2025-06-30)
+
+
+### Features
+
+* agend handler ([fb167fe](https://github.com/AristideI/SautiDesk-fn/commit/fb167fe73ea5b0b3dbe92b2903c7a45ec25e2617))
+
 ## [0.5.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.4.0...v0.5.0) (2025-06-25)
 
 
