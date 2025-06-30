@@ -6,6 +6,7 @@ import { OpenAIHandler } from "./openAI.handler";
 import { CommentHandler } from "./comment.handler";
 import { SmsHandler } from "./sms.handler";
 import { AgentHandler } from "./agent.handler";
+import { ConversationHandler } from "./conversation.handler";
 
 export const authHeaders = () => ({
   Authorization: `Bearer ${getAuthToken()}`,
@@ -19,4 +20,5 @@ export const API = {
   commentHandler: CommentHandler,
   smsHandler: SmsHandler,
   agentHandler: AgentHandler,
+  conversationHandler: ConversationHandler,
 };

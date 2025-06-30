@@ -58,7 +58,7 @@ function AgentPreviewModal({
 
   const handleViewFullDetails = () => {
     onClose();
-    navigate(`agents/${agent.documentId}`);
+    navigate(`${agent.documentId}`);
   };
 
   return (
