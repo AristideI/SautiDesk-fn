@@ -4,3 +4,12 @@ setup strapi backend
 
 ** Make sure the authentication is working properly before proceeding to the next step
 
+
+
+churn prediction model
+          based on the data we have, we need to predict the churn of the users
+          we need to use the data to train the model
+          we need to use the model to predict the churn of the users
+          we need to use the model to predict the churn of the users
+
+          this model will be used to predict the 
