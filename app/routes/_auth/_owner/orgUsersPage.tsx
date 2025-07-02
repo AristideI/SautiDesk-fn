@@ -25,7 +25,7 @@ import { CreateAgentModal } from "components/modals/createAgentModal";
 dayjs.extend(relativeTime);
 
 export default function OrgUsersPage() {
-  const { agents, tickets, organisation } = useOrganisationContext();
+  const { agents, tickets } = useOrganisationContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [openActionsMenu, setOpenActionsMenu] = useState<string | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<IUser | null>(null);
@@ -279,7 +279,6 @@ export default function OrgUsersPage() {
       <CreateAgentModal
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
-        organisation={organisation}
       />
     </main>
   );

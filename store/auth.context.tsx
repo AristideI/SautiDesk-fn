@@ -8,12 +8,12 @@ import {
   useEffect,
 } from "react";
 import type {
-  ILoginResponse,
   ILogInUser,
   IRegisterUser,
   IUser,
   UserRole,
 } from "types/user.type";
+import { useNavigate } from "react-router";
 
 interface AuthContextType {
   user: IUser | null;
@@ -49,7 +49,7 @@ export default function AuthContextProvider({ children }: ProviderProps) {
   const [user, setUser] = useState<IUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem("token");
     const currentUser = localStorage.getItem("user");
@@ -105,6 +105,7 @@ export default function AuthContextProvider({ children }: ProviderProps) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("userRole");
+    navigate("/");
   }
 
   async function register(userInfo: IRegisterUser) {

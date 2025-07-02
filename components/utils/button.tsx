@@ -2,7 +2,7 @@ import { LoadingSpinner } from "./loadings";
 
 interface ButtonProps {
   onPress: (e?: React.FormEvent) => void | Promise<void>;
-  buttonText: string;
+  buttonText?: string;
   disabled?: boolean;
   className?: string;
   fullWidth?: boolean;

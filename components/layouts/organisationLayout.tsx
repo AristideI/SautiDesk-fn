@@ -1,60 +1,22 @@
-import React from "react";
 import Logo from "components/utils/logo";
 import { OrgUserButton } from "components/utils/userButton";
-import {
-  LayoutDashboard,
-  Lightbulb,
-  Mails,
-  MessageSquareQuote,
-  Power,
-  Ticket,
-  Users,
-} from "lucide-react";
+import { Power } from "lucide-react";
 import { NavLink, Outlet, useMatch, useParams } from "react-router";
 import OrganisationContextProvider from "store/organisation.context";
+import { navLinks } from "constants/navLinks";
+import { useAuthContext } from "store/auth.context";
 
 export default function OrganisationLayout() {
   const { organisationId } = useParams();
+  const { logout } = useAuthContext();
 
-  const navLinks = [
-    {
-      path: `/o/organisations/${organisationId}`,
-      name: "Dashboard",
-      Icon: LayoutDashboard,
-    },
-    {
-      path: `/o/organisations/${organisationId}/tickets`,
-      name: "Tickets",
-      Icon: Ticket,
-    },
-    {
-      path: `/o/organisations/${organisationId}/agents`,
-      name: "Agents",
-      Icon: Users,
-    },
-    {
-      path: `/o/organisations/${organisationId}/inbox`,
-      name: "Inbox",
-      Icon: MessageSquareQuote,
-    },
-    {
-      path: `/o/organisations/${organisationId}/forum`,
-      name: "Forum",
-      Icon: Mails,
-    },
-    {
-      path: `/o/organisations/${organisationId}/knowledge-base`,
-      name: "Knowledge Base",
-      Icon: Lightbulb,
-    },
-  ];
   return (
     <OrganisationContextProvider organisationId={organisationId}>
       <main className="flex justify-end relative w-full min-h-screen">
         <aside className="w-1/6 fixed h-screen top-0 left-0 bg-black p-4 flex flex-col justify-between">
           <OrgUserButton />
           <section className="flex flex-col gap-2 flex-1 pt-10">
-            {navLinks.map((page) => (
+            {navLinks(organisationId || "").map((page) => (
               <AsideLink
                 key={page.name}
                 name={page.name}
@@ -65,11 +27,16 @@ export default function OrganisationLayout() {
           </section>
           <section className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-white/50">Powered By</p>
-              <Logo />
+              <p className="text-xs text-white/50">Powered By</p>
+              <Logo notClickable isSmall />
             </div>
             <div>
-              <Power />
+              <button
+                className="text-white/70 rounded-lg p-2 hover:bg-white/10 transition-colors cursor-pointer"
+                onClick={logout}
+              >
+                <Power size={20} />
+              </button>
             </div>
           </section>
         </aside>

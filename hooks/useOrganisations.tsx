@@ -35,10 +35,15 @@ export default function useOrganisations(ownerId?: string) {
     }
   }
 
+  async function loadOrganisations() {
+    await fetchOrganisations();
+  }
+
   return {
     organisations,
     setOrganisations,
     loading,
     error,
+    loadOrganisations,
   };
 }

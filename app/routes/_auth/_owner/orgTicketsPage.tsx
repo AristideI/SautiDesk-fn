@@ -153,7 +153,7 @@ export default function OrgTicketsPage() {
   }
 
   return (
-    <main>
+    <main className="">
       <article className="flex justify-between items-center border-b border-white/40 py-4 px-6">
         <h1 className="text-2xl font-semibold">Tickets</h1>
         <section className="flex gap-4">

@@ -12,3 +12,10 @@ export interface IOrganisation {
   updatedAt: Date;
   createdAt: Date;
 }
+
+export interface IOrganisationCreate {
+  name: string;
+  description?: string;
+  industry: string;
+  ownerId: string;
+}

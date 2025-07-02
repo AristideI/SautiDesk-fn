@@ -1,6 +1,12 @@
 import { useNavigate } from "react-router";
 
-export default function Logo() {
+export default function Logo({
+  isSmall,
+  notClickable,
+}: {
+  isSmall?: boolean;
+  notClickable?: boolean;
+}) {
   const navigate = useNavigate();
 
   function handleLogoClick() {
@@ -8,8 +14,12 @@ export default function Logo() {
   }
 
   return (
-    <button onClick={handleLogoClick} className="">
-      <img src="/logo.png" alt="main Logo" className="object-contain w-36" />
+    <button onClick={notClickable ? undefined : handleLogoClick}>
+      <img
+        src="/logo.png"
+        alt="main Logo"
+        className={`object-contain ${isSmall ? "w-24" : "w-36"}`}
+      />
     </button>
   );
 }
@@ -22,11 +32,7 @@ export function LogoIcon() {
 
   return (
     <button onClick={handleLogoClick} className="">
-      <img
-        src="/logoIcon.png"
-        alt="main Logo"
-        className="object-contain w-8"
-      />
+      <img src="/logoIcon.png" alt="main Logo" className="object-contain w-8" />
     </button>
   );
 }

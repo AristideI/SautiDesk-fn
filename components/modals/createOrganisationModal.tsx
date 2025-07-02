@@ -1,36 +1,45 @@
 import { useState } from "react";
-import { X, Shield, Mail, Phone, Briefcase, Lock, User } from "lucide-react";
+import { X, Building, Mail, Phone, MapPin, Globe, Users } from "lucide-react";
 import Button from "components/utils/button";
-import { UserHandler } from "api/user.handler";
-import { AgentHandler } from "api/agent.handler";
-import { toast } from "react-toastify";
-import { useOrganisationContext } from "store/organisation.context";
+import useOrganisations from "hooks/useOrganisations";
 
-interface CreateAgentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-interface CreateAgentForm {
-  username: string;
+interface CreateOrganisationForm {
+  name: string;
   email: string;
   phone: string;
-  title: string;
+  address: string;
+  website: string;
+  description: string;
 }
 
-export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
-  const [formData, setFormData] = useState<CreateAgentForm>({
-    username: "",
+interface CreateOrganisationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  user: { username?: string; email?: string; documentId?: string } | null;
+}
+
+export function CreateOrganisationModal({
+  isOpen,
+  onClose,
+  user,
+}: CreateOrganisationModalProps) {
+  const [formData, setFormData] = useState<CreateOrganisationForm>({
+    name: "",
     email: "",
     phone: "",
-    title: "",
+    address: "",
+    website: "",
+    description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const { organisation, loadOrganisation } = useOrganisationContext();
+  const { loadOrganisations } = useOrganisations();
 
-  const handleInputChange = (field: keyof CreateAgentForm, value: string) => {
+  const handleInputChange = (
+    field: keyof CreateOrganisationForm,
+    value: string
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -40,44 +49,25 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
     setError(null);
 
     try {
-      const userData = {
-        username: formData.username,
-        email: formData.email,
-        phone: formData.phone,
-        password: "Agent12345",
-        userRole: "AGENT",
-        organisation: organisation?.id,
-      };
+      // TODO: Implement organisation creation API call
+      console.log("Creating organisation:", formData);
 
-      const userResponse = await UserHandler.register(userData);
-
-      if (!userResponse.jwt) {
-        throw new Error("Failed to create user");
-      }
-
-      const agentData = {
-        title: formData.title,
-        user: userResponse.user.id.toString(), // Link to the created user
-      };
-
-      const agentResponse = await AgentHandler.create(agentData);
-
-      if (!agentResponse) {
-        throw new Error("Failed to create agent");
-      }
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       setSuccess(true);
       setFormData({
-        username: "",
+        name: "",
         email: "",
         phone: "",
-        title: "",
+        address: "",
+        website: "",
+        description: "",
       });
-      loadOrganisation();
       onClose();
-      toast.success("Agent created successfully");
+      loadOrganisations();
     } catch (error) {
-      console.error("Error creating agent:", error);
+      console.error("Error creating organisation:", error);
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsSubmitting(false);
@@ -87,10 +77,12 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
   const handleClose = () => {
     if (!isSubmitting) {
       setFormData({
-        username: "",
+        name: "",
         email: "",
         phone: "",
-        title: "",
+        address: "",
+        website: "",
+        description: "",
       });
       setError(null);
       setSuccess(false);
@@ -111,7 +103,7 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-white">
-              Create New Agent
+              Create New Organisation
             </h2>
             <button
               onClick={handleClose}
@@ -125,9 +117,9 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
           {/* Success Message */}
           {success && (
             <div className="mb-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg flex items-center gap-3">
-              <Shield size={20} className="text-green-400" />
+              <Building size={20} className="text-green-400" />
               <span className="text-green-400">
-                Agent created successfully!
+                Organisation created successfully!
               </span>
             </div>
           )}
@@ -141,29 +133,24 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
           )}
 
           {/* Form */}
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4 flex flex-col justify-between flex-1 h-11/12"
-          >
-            {/* Username */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Organisation Name */}
             <div>
               <label className="block text-sm font-medium mb-2 text-white/80">
-                Username *
+                Organisation Name *
               </label>
               <div className="relative">
-                <User
+                <Building
                   size={16}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40"
                 />
                 <input
                   type="text"
                   required
-                  value={formData.username}
-                  onChange={(e) =>
-                    handleInputChange("username", e.target.value)
-                  }
+                  value={formData.name}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
-                  placeholder="Enter username"
+                  placeholder="Enter organisation name"
                   disabled={isSubmitting}
                 />
               </div>
@@ -185,7 +172,7 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
                   value={formData.email}
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
-                  placeholder="Enter email address"
+                  placeholder="Enter organisation email"
                   disabled={isSubmitting}
                 />
               </div>
@@ -194,7 +181,7 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
             {/* Phone */}
             <div>
               <label className="block text-sm font-medium mb-2 text-white/80">
-                Phone Number *
+                Phone Number
               </label>
               <div className="relative">
                 <Phone
@@ -203,7 +190,6 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
                 />
                 <input
                   type="tel"
-                  required
                   value={formData.phone}
                   onChange={(e) => handleInputChange("phone", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
@@ -213,52 +199,92 @@ export function CreateAgentModal({ isOpen, onClose }: CreateAgentModalProps) {
               </div>
             </div>
 
-            {/* Title */}
+            {/* Address */}
             <div>
               <label className="block text-sm font-medium mb-2 text-white/80">
-                Agent Title *
+                Address
               </label>
               <div className="relative">
-                <Briefcase
+                <MapPin
                   size={16}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40"
                 />
                 <input
                   type="text"
-                  required
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
-                  placeholder="e.g., Senior Support Agent"
+                  placeholder="Enter organisation address"
                   disabled={isSubmitting}
                 />
               </div>
             </div>
 
-            {/* Password Info */}
+            {/* Website */}
+            <div>
+              <label className="block text-sm font-medium mb-2 text-white/80">
+                Website
+              </label>
+              <div className="relative">
+                <Globe
+                  size={16}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40"
+                />
+                <input
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => handleInputChange("website", e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
+                  placeholder="https://example.com"
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium mb-2 text-white/80">
+                Description
+              </label>
+              <textarea
+                rows={4}
+                value={formData.description}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors resize-none"
+                placeholder="Describe your organisation..."
+                disabled={isSubmitting}
+              />
+            </div>
+
+            {/* Owner Info */}
             <div className="p-4 bg-white/5 rounded-lg border border-white/10">
               <div className="flex items-center gap-3 mb-2">
-                <Lock size={16} className="text-white/60" />
+                <Users size={16} className="text-white/60" />
                 <span className="text-sm font-medium text-white/80">
-                  Default Password
+                  Organisation Owner
                 </span>
               </div>
               <p className="text-sm text-white/60">
-                The agent will be created with the default password:{" "}
-                <span className="font-mono text-green-400">Agent12345</span>
+                You will be set as the owner of this organisation with full
+                administrative privileges.
               </p>
               <p className="text-xs text-white/40 mt-1">
-                They can change this password after their first login.
+                Owner: {user?.username || user?.email}
               </p>
             </div>
 
             {/* Submit Button */}
             <Button
-              buttonText={isSubmitting ? "Creating Agent..." : "Register Agent"}
+              buttonText={
+                isSubmitting
+                  ? "Creating Organisation..."
+                  : "Create Organisation"
+              }
               onPress={(e) => handleSubmit(e as React.FormEvent)}
               disabled={isSubmitting}
-              fullWidth
-              className="self-end justify-self-end mt-auto"
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
             />
           </form>
         </div>

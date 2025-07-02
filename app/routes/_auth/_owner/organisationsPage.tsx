@@ -1,3 +1,4 @@
+import { useState } from "react";
 import OrganisationCard from "components/cards/organisationCard";
 import AdminHeader from "components/utils/adminHeader";
 import Button from "components/utils/button";
@@ -6,17 +7,25 @@ import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuthContext } from "store/auth.context";
 import { LoadingSection } from "components/utils/loadings";
+import { CreateOrganisationModal } from "components/modals/createOrganisationModal";
 
 export default function OrganisationsPage() {
   const { user } = useAuthContext();
   const { organisations, loading } = useOrganisations(user?.documentId);
   const navigate = useNavigate();
-
-  function HandleOnCreate() {}
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   function handleOpenOrganisation(id: string) {
     navigate(`/o/organisations/${id}`);
   }
+
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
 
   return (
     <article>
@@ -28,7 +37,7 @@ export default function OrganisationsPage() {
             <Button
               buttonText="Create Organisation"
               variant="primary"
-              onPress={HandleOnCreate}
+              onPress={handleOpenCreateModal}
               className="py-2 bg-green/50 border border-green"
             />
             <label className="w-1/4 relative">
@@ -65,6 +74,13 @@ export default function OrganisationsPage() {
           )}
         </article>
       </main>
+
+      {/* Create Organisation Modal */}
+      <CreateOrganisationModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        user={user}
+      />
     </article>
   );
 }

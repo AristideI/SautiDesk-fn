@@ -1,6 +1,9 @@
 import { authHeaders } from "api";
 import strapi from "./strapi";
-import type { IOrganisation } from "types/organisation.type";
+import type {
+  IOrganisation,
+  IOrganisationCreate,
+} from "types/organisation.type";
 
 export const OrganisationHandler = {
   async findAll() {
@@ -47,6 +50,15 @@ export const OrganisationHandler = {
         "populate[agents][populate][agent][populate]": "*",
       },
     });
+    return data.data;
+  },
+
+  async create(organisation: IOrganisationCreate) {
+    const { data } = await strapi.post<{ data: IOrganisation }>(
+      `/organisations`,
+      { data: organisation },
+      { headers: authHeaders() }
+    );
     return data.data;
   },
 };
