@@ -146,7 +146,8 @@ export default function OrgInboxPage() {
   };
 
   if (loading) {
-    return <LoadingSection />;
+    // return <LoadingSection />;
+    return <div>Loading...</div>;
   }
 
   if (error) {

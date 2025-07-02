@@ -165,6 +165,7 @@ export default function ContactPage() {
         department: "General Support",
       });
     } catch (error) {
+      console.error("Error submitting form:", error);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -407,7 +408,7 @@ export default function ContactPage() {
 
                 <Button
                   buttonText={isSubmitting ? "Sending..." : "Send Message"}
-                  onPress={handleSubmit}
+                  onPress={(e) => handleSubmit(e as React.FormEvent)}
                   disabled={isSubmitting}
                   className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
                   icon={isSubmitting ? undefined : <Send size={20} />}

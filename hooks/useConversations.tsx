@@ -44,8 +44,6 @@ export function useConversations(): UseConversationsReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  console.log("user", user.id);
-
   // Load conversations for the current user
   const loadConversations = useCallback(async () => {
     if (!user?.documentId) {
@@ -56,11 +54,11 @@ export function useConversations(): UseConversationsReturn {
     try {
       setLoading(true);
       setError(null);
-      const userConversations = await API.conversationHandler.findByUserId(
-        user.documentId
+      const userConversations = await API.conversationHandler.findByUserId();
+      const filteredConversations = userConversations.filter((conv) =>
+        conv.participants.some((p) => p.documentId === user.documentId)
       );
-      console.log("userConversations", userConversations);
-      setConversations(userConversations.data || []);
+      setConversations(filteredConversations || []);
     } catch (err) {
       console.error("Error loading conversations:", err);
       setError("Failed to load conversations");

@@ -23,26 +23,22 @@ export const ConversationHandler = {
     return data.data;
   },
 
-  async findByUserId(userId: number) {
-    const { data } = await strapi.get<{ data: { data: IConversation[] } }>(
+  async findByUserId() {
+    const { data } = await strapi.get<{ data: IConversation[] }>(
       `/conversations`,
       {
         headers: authHeaders(),
         params: {
-          filters: {
-            participants: {
-              $contains: "nh3kywqzfno9aa9nxexfxe16",
-            },
-          },
-          // "populate[participants][populate][profile][populate]": "*",
-          // "populate[messages][populate][sender][populate][profile][populate]":
-          //   "*",
-          // "populate[messages][populate][image][populate]": "*",
-          // "populate[messages][populate][tickets][populate]": "*",
+          "populate[participants][populate][profile][populate]": "*",
+          "populate[messages][populate][sender][populate][profile][populate]":
+            "*",
+          "populate[messages][populate][image][populate]": "*",
+          "populate[messages][populate][tickets][populate]": "*",
           sort: ["updatedAt:desc"],
         },
       }
     );
+    console.log(data.data);
     return data.data;
   },
 

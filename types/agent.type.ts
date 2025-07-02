@@ -21,12 +21,12 @@ export interface IAgent {
 
 export interface IAgentCreate {
   title: string;
-  areaOfExpertise: string;
+  areaOfExpertise?: string;
   about?: string;
   interests?: string[];
   qualification?: string;
   education?: string;
-  user: string;
+  user?: string;
   isActive?: boolean;
   specializations?: string[];
   experience?: number;

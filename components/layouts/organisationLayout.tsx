@@ -51,7 +51,7 @@ export default function OrganisationLayout() {
   return (
     <OrganisationContextProvider organisationId={organisationId}>
       <main className="flex justify-end relative w-full min-h-screen">
-        <aside className="w-1/6 absolute h-screen top-0 left-0 bg-black p-4 flex flex-col justify-between">
+        <aside className="w-1/6 fixed h-screen top-0 left-0 bg-black p-4 flex flex-col justify-between">
           <OrgUserButton />
           <section className="flex flex-col gap-2 flex-1 pt-10">
             {navLinks.map((page) => (
