@@ -11,6 +11,8 @@ import { ToastContainer } from "react-toastify";
 import type { Route } from "./+types/root";
 import "./app.css";
 import AuthContextProvider from "store/auth.context";
+import PinsContextProvider from "store/pins.context";
+import NotificationContextProvider from "store/notification.context";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -47,8 +49,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <AuthContextProvider>
-      <Outlet />
-      <ToastContainer position="top-center" theme="dark" />
+      <PinsContextProvider>
+        <NotificationContextProvider>
+          <Outlet />
+          <ToastContainer position="top-center" theme="dark" />
+        </NotificationContextProvider>
+      </PinsContextProvider>
     </AuthContextProvider>
   );
 }

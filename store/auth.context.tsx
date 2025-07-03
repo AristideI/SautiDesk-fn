@@ -14,16 +14,7 @@ import type {
   UserRole,
 } from "types/user.type";
 import { useNavigate } from "react-router";
-
-interface AuthContextType {
-  user: IUser | null;
-  userRole: UserRole | null;
-  token: string | null;
-  loadUserInfo: () => Promise<void>;
-  login: (user: ILogInUser) => Promise<IUser | void>;
-  logout: () => void;
-  register: (user: IRegisterUser) => Promise<void>;
-}
+import type { AuthContextType } from "types/context.type";
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -49,7 +40,9 @@ export default function AuthContextProvider({ children }: ProviderProps) {
   const [user, setUser] = useState<IUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const currentUser = localStorage.getItem("user");
