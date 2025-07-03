@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import OrganisationCard from "components/cards/organisationCard";
 import AdminHeader from "components/utils/adminHeader";
 import Button from "components/utils/button";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router";
 import { useAuthContext } from "store/auth.context";
 import { LoadingSection } from "components/utils/loadings";
 import { CreateOrganisationModal } from "components/modals/createOrganisationModal";
+import { API } from "api";
 
 export default function OrganisationsPage() {
   const { user } = useAuthContext();
@@ -18,6 +19,12 @@ export default function OrganisationsPage() {
   function handleOpenOrganisation(id: string) {
     navigate(`/o/organisations/${id}`);
   }
+
+  useEffect(() => {
+    API.userHandler.getUsers().then((res) => {
+      console.log(res);
+    });
+  }, []);
 
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
@@ -30,6 +37,7 @@ export default function OrganisationsPage() {
   return (
     <article>
       <AdminHeader />
+
       <main className="bg-red-100/5 min-h-screen w-full padd py-20">
         <article className="flex flex-col gap-10">
           <h1 className="text-[1.5vw] font-semibold">Your Organisations</h1>

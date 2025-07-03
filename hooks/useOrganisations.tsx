@@ -25,7 +25,7 @@ export default function useOrganisations(ownerId?: string) {
       const organisations = await API.organisationHandler.findByPersonId(
         ownerId || user?.documentId || ""
       );
-      console.log(organisations);
+      console.log(organisations[0].agents?.length);
       setOrganisations(organisations);
     } catch (error) {
       console.log(error);

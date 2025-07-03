@@ -45,7 +45,6 @@ export const OpenAIHandler = {
     });
 
     const data = await response.json();
-    console.log(JSON.parse(data.choices[0].message.content));
     return JSON.parse(data.choices[0].message.content);
   },
 };

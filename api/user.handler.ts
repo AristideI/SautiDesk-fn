@@ -3,6 +3,7 @@ import type {
   ILogInUser,
   ILoginResponse,
   IRegisterUser,
+  ISeedRegisterUser,
   IUser,
 } from "types/user.type";
 import type { IImage } from "types/image.type";
@@ -30,6 +31,11 @@ export const UserHandler = {
     return data;
   },
 
+  async seedRegister(user: ISeedRegisterUser): Promise<ILoginResponse> {
+    const { data } = await strapi.post("/auth/local/register", user);
+    return data;
+  },
+
   async uploadImage(img: File): Promise<IImage> {
     const formData = new FormData();
     formData.append("files", img);
@@ -39,7 +45,12 @@ export const UserHandler = {
     return data[0];
   },
   async getUsers() {
-    const { data } = await strapi.get("/users", { headers: authHeaders() });
+    const { data } = await strapi.get("/users", {
+      headers: authHeaders(),
+      params: {
+        "populate[organisation]": "*",
+      },
+    });
     return data;
   },
 

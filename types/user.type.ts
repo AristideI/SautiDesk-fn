@@ -29,6 +29,15 @@ export interface IRegisterUser {
   profile?: File;
   organisation?: string;
 }
+export interface ISeedRegisterUser {
+  username: string;
+  email: string;
+  phone: string;
+  password: string;
+  userRole?: string;
+  profile?: string;
+  organisation?: string;
+}
 
 export interface ILoginResponse {
   jwt: string;

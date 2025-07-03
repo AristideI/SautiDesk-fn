@@ -38,7 +38,6 @@ export const ConversationHandler = {
         },
       }
     );
-    console.log(data.data);
     return data.data;
   },
 
