@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.6.0...v0.7.0) (2025-07-03)
+
+
+### Features
+
+* create organisation ([f63c3d2](https://github.com/AristideI/SautiDesk-fn/commit/f63c3d21c78f8a84772b27230b43c83077857fd6))
+* handler agent creating ([f369d5a](https://github.com/AristideI/SautiDesk-fn/commit/f369d5a417eca4239ef460d2d3c8f232a0ee39ea))
+* seeds data ([17de303](https://github.com/AristideI/SautiDesk-fn/commit/17de303207e1ef5ed399686f550bcf5928a933bf))
+* unauth pages ([4aeaf9c](https://github.com/AristideI/SautiDesk-fn/commit/4aeaf9c1c8c75e9014718e346b941940c8d02544))
+
 ## [0.6.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.5.0...v0.6.0) (2025-06-30)
 
 
