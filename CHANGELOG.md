@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.8.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.7.0...v0.8.0) (2025-07-04)
+
+
+### Features
+
+* knowledge base ([2f115f0](https://github.com/AristideI/SautiDesk-fn/commit/2f115f0bd1d4ade8a23411a0ec7367536c27e450))
+* loading skeleton ([188152a](https://github.com/AristideI/SautiDesk-fn/commit/188152a19b7cb7aa189a59c040602b1cdeedc538))
+* notification and pinning ([69634d9](https://github.com/AristideI/SautiDesk-fn/commit/69634d932944de94c752978d9ee64a6414a473e0))
+
 ## [0.7.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.6.0...v0.7.0) (2025-07-03)
 
 
