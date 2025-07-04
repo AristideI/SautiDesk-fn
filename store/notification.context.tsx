@@ -33,31 +33,39 @@ export default function NotificationContextProvider({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuthContext();
+
   // Calculate unread count
   const unreadCount = useMemo(() => {
     return notifications.filter((notification) => !notification.isRead).length;
   }, [notifications]);
 
-  // Load notifications from localStorage on mount
+  // Load notifications when user is available
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    if (user?.id) {
+      fetchNotifications();
+    }
+  }, [user?.id]); // Add user?.id as dependency
 
   useEffect(() => {
     localStorage.setItem("notifications", JSON.stringify(notifications));
   }, [notifications]);
 
   const fetchNotifications = async () => {
+    if (!user?.id) {
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const response = await API.notificationHandler.findAll();
-      const filteredNotifications = response.filter(
-        (notification) =>
+      const filteredNotifications = response.filter((notification) => {
+        return (
           notification.from.id === user?.id ||
           notification.agent.id === user?.id
-      );
+        );
+      });
       setNotifications(filteredNotifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);

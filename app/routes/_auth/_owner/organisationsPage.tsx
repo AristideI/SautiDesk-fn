@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import OrganisationCard from "components/cards/organisationCard";
 import AdminHeader from "components/utils/adminHeader";
 import Button from "components/utils/button";
@@ -6,9 +6,8 @@ import useOrganisations from "hooks/useOrganisations";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuthContext } from "store/auth.context";
-import { LoadingSection } from "components/utils/loadings";
 import { CreateOrganisationModal } from "components/modals/createOrganisationModal";
-import { API } from "api";
+import LoadingSkeleton from "components/utils/orgSkeleton";
 
 export default function OrganisationsPage() {
   const { user } = useAuthContext();
@@ -19,12 +18,6 @@ export default function OrganisationsPage() {
   function handleOpenOrganisation(id: string) {
     navigate(`/o/organisations/${id}`);
   }
-
-  useEffect(() => {
-    API.userHandler.getUsers().then((res) => {
-      console.log(res);
-    });
-  }, []);
 
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
@@ -62,7 +55,7 @@ export default function OrganisationsPage() {
             </label>
           </section>
           {loading ? (
-            <LoadingSection />
+            <LoadingSkeleton />
           ) : (
             <section>
               {organisations.length > 0 ? (

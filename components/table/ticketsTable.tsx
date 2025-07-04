@@ -1,9 +1,9 @@
-import { LoadingSection } from "components/utils/loadings";
 import type { ITicket } from "types/ticket.types";
 import { TicketType } from "types/ticket.types";
 import { ticketTypeIcons } from "constants/typeIcons";
 import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router";
+import { TicketLoadingSkeleton } from "components/utils/tableSkeletons";
 
 interface TicketsTableProps {
   tickets: ITicket[];
@@ -25,7 +25,7 @@ export default function TicketsTable({
   return (
     <article className="flex-1 p-6">
       {isLoading ? (
-        <LoadingSection />
+        <TicketLoadingSkeleton />
       ) : displayTickets && displayTickets?.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">

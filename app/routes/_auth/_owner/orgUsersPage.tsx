@@ -21,11 +21,12 @@ import { getTicketCount } from "helpers/getTicketCount";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { CreateAgentModal } from "components/modals/createAgentModal";
+import { UsersLoadingSkeleton } from "components/utils/tableSkeletons";
 
 dayjs.extend(relativeTime);
 
 export default function OrgUsersPage() {
-  const { agents, tickets } = useOrganisationContext();
+  const { agents, tickets, loading } = useOrganisationContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [openActionsMenu, setOpenActionsMenu] = useState<string | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<IUser | null>(null);
@@ -126,145 +127,149 @@ export default function OrgUsersPage() {
       </article>
 
       <article className="flex-1 p-6">
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-white/40">
-                <th className="text-left py-3 px-4 text-white/60">Name</th>
-                <th className="text-left py-3 px-4 text-white/60">Email</th>
-                <th className="text-left py-3 px-4 text-white/60">Phone</th>
-                <th className="text-left py-3 px-4 text-white/60">Type</th>
-                <th className="text-left py-3 px-4 text-white/60">Tickets</th>
-                <th className="text-left py-3 px-4 text-white/60">Joined</th>
-                <th className="text-left py-3 px-4 text-white/60">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAgents.map((agent) => (
-                <tr
-                  key={agent.documentId}
-                  className="border-b border-white/20 hover:bg-white/5 cursor-pointer"
-                  onClick={() => handleAgentClick(agent)}
-                >
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
-                      {agent.profile?.url ? (
-                        <img
-                          src={agent.profile.url}
-                          alt={agent.username}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                          <Shield size={16} />
-                        </div>
-                      )}
-                      <span className="font-medium">{agent.username}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Mail size={14} className="text-white/60" />
-                      <span>{agent.email}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    {agent.phone ? (
-                      <div className="flex items-center gap-2">
-                        <Phone size={14} className="text-white/60" />
-                        <span>{agent.phone}</span>
-                      </div>
-                    ) : (
-                      <span className="text-white/40">-</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm ${
-                        agent.userRole === "ADMIN"
-                          ? "bg-purple-500/20 text-purple-400"
-                          : agent.userRole === "AGENT"
-                          ? "bg-blue-500/20 text-blue-400"
-                          : agent.userRole === "SUPER_ADMIN"
-                          ? "bg-red-500/20 text-red-400"
-                          : "bg-gray-500/20 text-gray-400"
-                      }`}
-                    >
-                      {agent.userRole}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Ticket size={16} className="text-white/60" />
-                      <span className="font-medium">
-                        {getTicketCount(tickets, agent.documentId)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={14} className="text-white/60" />
-                      <span>{dayjs(agent.createdAt).fromNow(true)}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="relative">
-                      <button
-                        className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenActionsMenu(
-                            openActionsMenu === agent.documentId
-                              ? null
-                              : agent.documentId
-                          );
-                        }}
-                      >
-                        <MoreVertical size={20} />
-                      </button>
-
-                      {openActionsMenu === agent.documentId && (
-                        <div
-                          ref={actionsMenuRef}
-                          className="absolute right-0 top-full mt-1 bg-black border border-white/20 rounded-lg z-10 min-w-[160px]"
-                        >
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewDetails(agent.documentId);
-                            }}
-                            className="w-full px-4 py-2 hover:bg-white/10 flex items-center gap-2 text-sm"
-                          >
-                            <Eye size={16} />
-                            View Full Details
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDisableAgent(agent.documentId);
-                            }}
-                            className="w-full px-4 py-2 hover:bg-white/10 flex items-center gap-2 text-sm text-red-400"
-                          >
-                            <UserX size={16} />
-                            Disable Agent
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
+        {loading ? (
+          <UsersLoadingSkeleton />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-white/40">
+                  <th className="text-left py-3 px-4 text-white/60">Name</th>
+                  <th className="text-left py-3 px-4 text-white/60">Email</th>
+                  <th className="text-left py-3 px-4 text-white/60">Phone</th>
+                  <th className="text-left py-3 px-4 text-white/60">Type</th>
+                  <th className="text-left py-3 px-4 text-white/60">Tickets</th>
+                  <th className="text-left py-3 px-4 text-white/60">Joined</th>
+                  <th className="text-left py-3 px-4 text-white/60">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredAgents.map((agent) => (
+                  <tr
+                    key={agent.documentId}
+                    className="border-b border-white/20 hover:bg-white/5 cursor-pointer"
+                    onClick={() => handleAgentClick(agent)}
+                  >
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        {agent.profile?.url ? (
+                          <img
+                            src={agent.profile.url}
+                            alt={agent.username}
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                            <Shield size={16} />
+                          </div>
+                        )}
+                        <span className="font-medium">{agent.username}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <Mail size={14} className="text-white/60" />
+                        <span>{agent.email}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      {agent.phone ? (
+                        <div className="flex items-center gap-2">
+                          <Phone size={14} className="text-white/60" />
+                          <span>{agent.phone}</span>
+                        </div>
+                      ) : (
+                        <span className="text-white/40">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm ${
+                          agent.userRole === "ADMIN"
+                            ? "bg-purple-500/20 text-purple-400"
+                            : agent.userRole === "AGENT"
+                            ? "bg-blue-500/20 text-blue-400"
+                            : agent.userRole === "SUPER_ADMIN"
+                            ? "bg-red-500/20 text-red-400"
+                            : "bg-gray-500/20 text-gray-400"
+                        }`}
+                      >
+                        {agent.userRole}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <Ticket size={16} className="text-white/60" />
+                        <span className="font-medium">
+                          {getTicketCount(tickets, agent.documentId)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={14} className="text-white/60" />
+                        <span>{dayjs(agent.createdAt).fromNow(true)}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="relative">
+                        <button
+                          className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenActionsMenu(
+                              openActionsMenu === agent.documentId
+                                ? null
+                                : agent.documentId
+                            );
+                          }}
+                        >
+                          <MoreVertical size={20} />
+                        </button>
 
-          {filteredAgents.length === 0 && (
-            <div className="text-center py-8 text-white/60">
-              {searchQuery
-                ? "No agents found matching your search."
-                : "No agents found."}
-            </div>
-          )}
-        </div>
+                        {openActionsMenu === agent.documentId && (
+                          <div
+                            ref={actionsMenuRef}
+                            className="absolute right-0 top-full mt-1 bg-black border border-white/20 rounded-lg z-10 min-w-[160px]"
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetails(agent.documentId);
+                              }}
+                              className="w-full px-4 py-2 hover:bg-white/10 flex items-center gap-2 text-sm"
+                            >
+                              <Eye size={16} />
+                              View Full Details
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDisableAgent(agent.documentId);
+                              }}
+                              className="w-full px-4 py-2 hover:bg-white/10 flex items-center gap-2 text-sm text-red-400"
+                            >
+                              <UserX size={16} />
+                              Disable Agent
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {filteredAgents.length === 0 && (
+              <div className="text-center py-8 text-white/60">
+                {searchQuery
+                  ? "No agents found matching your search."
+                  : "No agents found."}
+              </div>
+            )}
+          </div>
+        )}
       </article>
 
       {/* Agent Preview Modal */}
