@@ -19,3 +19,13 @@ export interface IOrganisationCreate {
   industry: string;
   ownerId: string;
 }
+
+export interface CreateOrganisationForm {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  website: string;
+  description: string;
+  industry: string;
+}

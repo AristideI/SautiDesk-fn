@@ -25,12 +25,15 @@ export interface PinsContextType {
   unpinTicket: (ticket: ITicket) => Promise<void>;
   pinKnowledgeBase: (knowledgeBase: IKnowledgeBase) => Promise<void>;
   unpinKnowledgeBase: (knowledgeBase: IKnowledgeBase) => Promise<void>;
+  pinAgent: (agent: IUser) => Promise<void>;
+  unpinAgent: (agent: IUser) => Promise<void>;
 }
 
 export interface IPinnedStore {
   tickets: ITicket[] | null;
   conversations: IConversation[] | null;
   knowledgeBases: IKnowledgeBase[] | null;
+  agents: IUser[] | null;
 }
 
 export interface NotificationContextType {

@@ -49,8 +49,141 @@ body {
   @apply text-white;
 }
 
+/* Responsive padding utilities */
 .padd {
   @apply px-[8%];
+}
+
+/* Responsive text utilities */
+.text-responsive-xl {
+  @apply text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl;
+}
+
+.text-responsive-lg {
+  @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl;
+}
+
+.text-responsive-md {
+  @apply text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl;
+}
+
+.text-responsive-sm {
+  @apply text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl;
+}
+
+/* Responsive spacing utilities */
+.space-responsive {
+  @apply space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-10;
+}
+
+.gap-responsive {
+  @apply gap-4 sm:gap-6 md:gap-8 lg:gap-10;
+}
+
+/* Responsive grid utilities */
+.grid-responsive {
+  @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
+}
+
+.grid-responsive-2 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3;
+}
+
+.grid-responsive-3 {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+/* Responsive flex utilities */
+.flex-responsive {
+  @apply flex flex-col sm:flex-row;
+}
+
+.flex-responsive-reverse {
+  @apply flex flex-col-reverse sm:flex-row;
+}
+
+/* Responsive container utilities */
+.container-responsive {
+  @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Responsive button utilities */
+.btn-responsive {
+  @apply px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base;
+}
+
+/* Responsive form utilities */
+.form-responsive {
+  @apply space-y-4 sm:space-y-6;
+}
+
+.input-responsive {
+  @apply w-full px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base;
+}
+
+/* Responsive modal utilities */
+.modal-responsive {
+  @apply w-full sm:w-11/12 md:w-3/4 lg:w-1/2 xl:w-1/3;
+}
+
+/* Responsive table utilities */
+.table-responsive {
+  @apply overflow-x-auto -mx-4 sm:mx-0;
+}
+
+.table-responsive table {
+  @apply min-w-full text-sm sm:text-base;
+}
+
+.table-responsive th,
+.table-responsive td {
+  @apply px-2 py-2 sm:px-4 sm:py-3;
+}
+
+/* Responsive navigation utilities */
+.nav-responsive {
+  @apply flex flex-col sm:flex-row items-start sm:items-center;
+}
+
+.nav-responsive-mobile {
+  @apply fixed inset-0 z-50 bg-black/95 backdrop-blur-sm sm:hidden;
+}
+
+.nav-responsive-desktop {
+  @apply hidden sm:flex;
+}
+
+/* Responsive card utilities */
+.card-responsive {
+  @apply p-4 sm:p-6 lg:p-8;
+}
+
+/* Responsive image utilities */
+.img-responsive {
+  @apply w-full h-auto object-cover;
+}
+
+/* Responsive layout utilities */
+.layout-responsive {
+  @apply min-h-screen flex flex-col;
+}
+
+.content-responsive {
+  @apply flex-1 w-full;
+}
+
+/* Responsive sidebar utilities */
+.sidebar-responsive {
+  @apply fixed inset-y-0 left-0 z-40 w-64 bg-black/95 backdrop-blur-sm transform -translate-x-full transition-transform duration-300 ease-in-out sm:relative sm:translate-x-0 sm:z-auto;
+}
+
+.sidebar-responsive.open {
+  @apply translate-x-0;
+}
+
+/* Responsive overlay utilities */
+.overlay-responsive {
+  @apply fixed inset-0 z-30 bg-black/50 backdrop-blur-sm sm:hidden;
 }
 
 /* screen size of ipad */
@@ -65,4 +198,36 @@ body {
   .padd {
     @apply px-[3%];
   }
+}
+
+/* Custom responsive breakpoints */
+@media (max-width: 480px) {
+  .padd {
+    @apply px-[2%];
+  }
+}
+
+/* Hide elements on specific screen sizes */
+.hide-mobile {
+  @apply hidden sm:block;
+}
+
+.hide-tablet {
+  @apply hidden md:block;
+}
+
+.hide-desktop {
+  @apply block sm:hidden;
+}
+
+.show-mobile {
+  @apply block sm:hidden;
+}
+
+.show-tablet {
+  @apply hidden md:block;
+}
+
+.show-desktop {
+  @apply hidden lg:block;
 }

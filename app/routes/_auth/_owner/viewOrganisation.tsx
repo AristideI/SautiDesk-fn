@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import Button from "components/utils/button";
 import {
   Download,
@@ -109,7 +108,7 @@ const metrics: MetricCard[] = [
 ];
 
 export default function ViewOrganisation() {
-  const [selectedPeriod, setSelectedPeriod] = useState("year");
+  // const { tickets } = useOrganisationContext();
 
   const handleExportCSV = () => {
     // TODO: Implement CSV export functionality
@@ -304,7 +303,7 @@ export default function ViewOrganisation() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${(percent || 0 * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
                   fill="#8884d8"

@@ -1,9 +1,13 @@
 import { NavLink, useNavigate } from "react-router";
 import Button from "./button";
 import Logo from "./logo";
+import { useAuthContext } from "store/auth.context";
+import UserButton from "./userButton";
 
 export default function GeneralHeader() {
   const navigate = useNavigate();
+
+  const { user } = useAuthContext();
 
   function navigateToLogin() {
     navigate("/login");
@@ -23,14 +27,22 @@ export default function GeneralHeader() {
         <HeaderLink to="/help" text="Help" />
         <HeaderLink to="/contact" text="Contact" />
       </section>
-      <section className="flex gap-6">
-        <Button
-          buttonText="Try SautiDesk"
-          onPress={navigateToLogin}
-          variant="primary"
-        />
-        <Button buttonText="View Demo" onPress={viewDemo} variant="secondary" />
-      </section>
+      {user ? (
+        <UserButton isGeneral />
+      ) : (
+        <section className="flex gap-6">
+          <Button
+            buttonText="Try SautiDesk"
+            onPress={navigateToLogin}
+            variant="primary"
+          />
+          <Button
+            buttonText="View Demo"
+            onPress={viewDemo}
+            variant="secondary"
+          />
+        </section>
+      )}
     </article>
   );
 }
@@ -45,7 +57,9 @@ function HeaderLink({ to, text }: NavLinkProps) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `text-sm ${isActive ? "border-b-2 border-green text-green font-bold" : ""}`
+        `text-sm ${
+          isActive ? "border-b-2 border-green text-green font-bold" : ""
+        }`
       }
     >
       {text}

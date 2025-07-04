@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import Button from "components/utils/button";
-import { LoadingSection } from "components/utils/loadings";
+import { AgentLoadingSkeleton } from "components/utils/orgSkeleton";
 import {
   ArrowLeft,
   Plus,
@@ -19,12 +19,15 @@ import {
   Paperclip,
   Activity,
   MessageSquare,
+  Pin,
 } from "lucide-react";
 import { useOrganisationContext } from "store/organisation.context";
+import { usePinsContext } from "store/pins.context";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import type { IUser } from "types/user.type";
 import CreateTicketModal from "components/modals/createTicketModal";
+import type { ITicket } from "types/ticket.types";
 
 type TabType = "tickets" | "activity" | "notes" | "attachments";
 
@@ -32,6 +35,8 @@ export default function ViewAgentPage() {
   const { agentId } = useParams();
   const navigate = useNavigate();
   const { organisation, tickets } = useOrganisationContext();
+  const { pinnedStore, pinTicket, unpinTicket, pinAgent, unpinAgent } =
+    usePinsContext();
   const [agent, setAgent] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("tickets");
@@ -71,6 +76,65 @@ export default function ViewAgentPage() {
     setIsCreateTicketModalOpen(false);
   };
 
+  const handlePinTicket = async (ticket: ITicket) => {
+    try {
+      await pinTicket(ticket);
+      toast.success("Ticket pinned successfully");
+    } catch (error) {
+      console.error("Error pinning ticket:", error);
+      toast.error("Failed to pin ticket");
+    }
+  };
+
+  const handleUnpinTicket = async (ticket: ITicket) => {
+    try {
+      await unpinTicket(ticket);
+      toast.success("Ticket unpinned successfully");
+    } catch (error) {
+      console.error("Error unpinning ticket:", error);
+      toast.error("Failed to unpin ticket");
+    }
+  };
+
+  const isTicketPinned = (ticketId: string) => {
+    return (
+      pinnedStore.tickets?.some((ticket) => ticket.documentId === ticketId) ||
+      false
+    );
+  };
+
+  const handlePinAgent = async () => {
+    if (!agent) return;
+
+    try {
+      await pinAgent(agent);
+      toast.success("Agent pinned successfully");
+    } catch (error) {
+      console.error("Error pinning agent:", error);
+      toast.error("Failed to pin agent");
+    }
+  };
+
+  const handleUnpinAgent = async () => {
+    if (!agent) return;
+
+    try {
+      await unpinAgent(agent);
+      toast.success("Agent unpinned successfully");
+    } catch (error) {
+      console.error("Error unpinning agent:", error);
+      toast.error("Failed to unpin agent");
+    }
+  };
+
+  const isAgentPinned = () => {
+    if (!agent) return false;
+    return (
+      pinnedStore.agents?.some((a) => a.documentId === agent.documentId) ||
+      false
+    );
+  };
+
   const getTicketTypeColor = (type: string) => {
     switch (type) {
       case "TICKET":
@@ -98,7 +162,7 @@ export default function ViewAgentPage() {
   };
 
   if (loading) {
-    return <LoadingSection />;
+    return <AgentLoadingSkeleton />;
   }
 
   if (!agent) {
@@ -118,11 +182,24 @@ export default function ViewAgentPage() {
           </button>
           <h1 className="text-2xl font-semibold">Agent Details</h1>
         </div>
-        <Button
-          buttonText="Add New Ticket"
-          icon={<Plus size={20} />}
-          onPress={handleCreateTicket}
-        />
+        <div className="flex items-center gap-4">
+          <button
+            onClick={isAgentPinned() ? handleUnpinAgent : handlePinAgent}
+            className={`p-2 rounded-full transition-colors ${
+              isAgentPinned()
+                ? "text-green hover:text-green/80 hover:bg-green/10"
+                : "text-white/60 hover:text-white hover:bg-white/10"
+            }`}
+            title={isAgentPinned() ? "Unpin agent" : "Pin agent"}
+          >
+            <Pin size={20} />
+          </button>
+          <Button
+            buttonText="Add New Ticket"
+            icon={<Plus size={20} />}
+            onPress={handleCreateTicket}
+          />
+        </div>
       </header>
 
       {/* Agent Info Row */}
@@ -345,16 +422,44 @@ export default function ViewAgentPage() {
                       {filteredTickets.map((ticket) => (
                         <tr
                           key={ticket.documentId}
-                          className="border-b border-white/20 hover:bg-white/5 cursor-pointer"
-                          onClick={() =>
-                            navigate(`../tickets/${ticket.documentId}`)
-                          }
+                          className="border-b border-white/20 hover:bg-white/5"
                         >
                           <td className="py-3 px-4 font-mono text-sm">
                             {ticket.documentId}
                           </td>
                           <td className="py-3 px-4 font-medium">
-                            {ticket.title}
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="cursor-pointer hover:text-green transition-colors"
+                                onClick={() =>
+                                  navigate(`../tickets/${ticket.documentId}`)
+                                }
+                              >
+                                {ticket.title}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (isTicketPinned(ticket.documentId)) {
+                                    handleUnpinTicket(ticket);
+                                  } else {
+                                    handlePinTicket(ticket);
+                                  }
+                                }}
+                                className={`p-1 rounded-full transition-colors ${
+                                  isTicketPinned(ticket.documentId)
+                                    ? "text-green hover:text-green/80"
+                                    : "text-white/40 hover:text-white/60"
+                                }`}
+                                title={
+                                  isTicketPinned(ticket.documentId)
+                                    ? "Unpin ticket"
+                                    : "Pin ticket"
+                                }
+                              >
+                                <Pin size={16} />
+                              </button>
+                            </div>
                           </td>
                           <td className="py-3 px-4">
                             <span

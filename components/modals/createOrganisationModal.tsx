@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { X, Building, Mail, Phone, MapPin, Globe, Users } from "lucide-react";
+import {
+  X,
+  Building,
+  Phone,
+  MapPin,
+  Globe,
+  Users,
+  Briefcase,
+} from "lucide-react";
 import Button from "components/utils/button";
 import useOrganisations from "hooks/useOrganisations";
-
-interface CreateOrganisationForm {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  website: string;
-  description: string;
-}
+import { API } from "api";
+import type { CreateOrganisationForm } from "types/organisation.type";
+import { toast } from "react-toastify";
 
 interface CreateOrganisationModalProps {
   isOpen: boolean;
@@ -30,6 +32,7 @@ export function CreateOrganisationModal({
     address: "",
     website: "",
     description: "",
+    industry: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,11 +52,12 @@ export function CreateOrganisationModal({
     setError(null);
 
     try {
-      // TODO: Implement organisation creation API call
-      console.log("Creating organisation:", formData);
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await API.organisationHandler.create({
+        name: formData.name,
+        description: formData.description,
+        ownerId: user?.documentId || "",
+        industry: formData.industry,
+      });
 
       setSuccess(true);
       setFormData({
@@ -63,8 +67,10 @@ export function CreateOrganisationModal({
         address: "",
         website: "",
         description: "",
+        industry: "",
       });
       onClose();
+      toast.success("Organisation created successfully");
       loadOrganisations();
     } catch (error) {
       console.error("Error creating organisation:", error);
@@ -83,6 +89,7 @@ export function CreateOrganisationModal({
         address: "",
         website: "",
         description: "",
+        industry: "",
       });
       setError(null);
       setSuccess(false);
@@ -156,23 +163,25 @@ export function CreateOrganisationModal({
               </div>
             </div>
 
-            {/* Email */}
+            {/* Industry */}
             <div>
               <label className="block text-sm font-medium mb-2 text-white/80">
-                Email *
+                Industry *
               </label>
               <div className="relative">
-                <Mail
+                <Briefcase
                   size={16}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40"
                 />
                 <input
-                  type="email"
+                  type="text"
                   required
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
+                  value={formData.industry}
+                  onChange={(e) =>
+                    handleInputChange("industry", e.target.value)
+                  }
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-green-500 transition-colors"
-                  placeholder="Enter organisation email"
+                  placeholder="Enter organisation industry"
                   disabled={isSubmitting}
                 />
               </div>
@@ -284,7 +293,7 @@ export function CreateOrganisationModal({
               }
               onPress={(e) => handleSubmit(e as React.FormEvent)}
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-50"
+              className="w-full disabled:opacity-50"
             />
           </form>
         </div>

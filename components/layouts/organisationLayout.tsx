@@ -7,6 +7,7 @@ import { navLinks } from "constants/navLinks";
 import { useAuthContext } from "store/auth.context";
 import { useNotificationContext } from "store/notification.context";
 import { useState } from "react";
+import { usePinsContext } from "store/pins.context";
 
 export default function OrganisationLayout() {
   const { organisationId } = useParams();
@@ -14,6 +15,7 @@ export default function OrganisationLayout() {
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
 
   const { notifications, isLoading } = useNotificationContext();
+  const { pinnedStore } = usePinsContext();
 
   function openNotificationModal() {
     setIsNotificationModalOpen(true);
@@ -63,47 +65,96 @@ export default function OrganisationLayout() {
               </h3>
 
               {/* Pinned Tickets */}
-              <div className="mb-4">
-                <h4 className="text-xs text-white/50 mb-2">Pinned Tickets</h4>
-                <div className="space-y-2">
-                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
-                    Ticket #1234 - Login Issue
-                  </div>
-                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
-                    Ticket #5678 - Payment Error
+              {pinnedStore.tickets && pinnedStore.tickets.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-xs text-white/50 mb-2">Pinned Tickets</h4>
+                  <div className="space-y-2">
+                    {pinnedStore.tickets.map((ticket) => (
+                      <div
+                        key={ticket.id}
+                        className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                      >
+                        Ticket #{ticket.id} - {ticket.title}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Pinned Knowledge Base */}
-              <div className="mb-4">
-                <h4 className="text-xs text-white/50 mb-2">
-                  Pinned Knowledge Base
-                </h4>
-                <div className="space-y-2">
-                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
-                    How to Reset Password
+              {pinnedStore.knowledgeBases &&
+                pinnedStore.knowledgeBases.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-xs text-white/50 mb-2">
+                      Pinned Knowledge Base
+                    </h4>
+                    <div className="space-y-2">
+                      {pinnedStore.knowledgeBases.map((kb) => (
+                        <div
+                          key={kb.id}
+                          className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                        >
+                          {kb.title}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
-                    API Documentation
-                  </div>
-                </div>
-              </div>
+                )}
 
               {/* Pinned Conversations */}
-              <div className="mb-4">
-                <h4 className="text-xs text-white/50 mb-2">
-                  Pinned Conversations
-                </h4>
-                <div className="space-y-2">
-                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
-                    Support Chat #1
+              {pinnedStore.conversations &&
+                pinnedStore.conversations.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-xs text-white/50 mb-2">
+                      Pinned Conversations
+                    </h4>
+                    <div className="space-y-2">
+                      {pinnedStore.conversations.map((conversation) => (
+                        <div
+                          key={conversation.id}
+                          className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                        >
+                          {conversation.participants.length > 0
+                            ? `${conversation.participants[0].username}${
+                                conversation.participants.length > 1
+                                  ? ` +${conversation.participants.length - 1}`
+                                  : ""
+                              }`
+                            : `Conversation #${conversation.id}`}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
-                    General Discussion
+                )}
+
+              {/* Pinned Agents */}
+              {pinnedStore.agents && pinnedStore.agents.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-xs text-white/50 mb-2">Pinned Agents</h4>
+                  <div className="space-y-2">
+                    {pinnedStore.agents.map((agent) => (
+                      <div
+                        key={agent.documentId}
+                        className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                      >
+                        {agent.username}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* Show message when no pins exist */}
+              {(!pinnedStore.tickets || pinnedStore.tickets.length === 0) &&
+                (!pinnedStore.knowledgeBases ||
+                  pinnedStore.knowledgeBases.length === 0) &&
+                (!pinnedStore.conversations ||
+                  pinnedStore.conversations.length === 0) &&
+                (!pinnedStore.agents || pinnedStore.agents.length === 0) && (
+                  <div className="text-xs text-white/40 italic">
+                    No pinned items yet
+                  </div>
+                )}
             </div>
           </section>
           <section className="flex items-center justify-between">

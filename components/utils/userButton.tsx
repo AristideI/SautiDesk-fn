@@ -1,9 +1,11 @@
 import { useAuthContext } from "store/auth.context";
 import Button from "./button";
 import { Bell, CircleHelp } from "lucide-react";
+import { useNavigate } from "react-router";
 
-export default function UserButton() {
+export default function UserButton({ isGeneral }: { isGeneral?: boolean }) {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
   const nameInitials = user?.username
     .split(" ")
     .map((n) => n[0])
@@ -11,18 +13,33 @@ export default function UserButton() {
 
   function handleFeedback() {}
 
+  function navigateToDashboard() {
+    navigate("/o/organisations");
+  }
+
   return (
     <article className="flex gap-6">
-      <Button
-        buttonText="FeedBack"
-        onPress={handleFeedback}
-        variant="secondary"
-        className="!rounded-3xl !border-white/30 !text-white/30 !px-4 !py-1.5 !text-xs hover:!bg-white/10"
-      />
-      <section className="flex items-center gap-2 border border-white/30 px-2 rounded-3xl">
-        <CircleHelp size={20} color="#ffffff30" />
-        <Bell size={20} color="#ffffff30" />
-      </section>
+      {isGeneral ? (
+        <Button
+          buttonText="Dashboard"
+          onPress={navigateToDashboard}
+          variant="secondary"
+          className="!rounded-3xl !border-white/30 !text-white/30 !px-4 !py-1.5 !text-xs hover:!bg-white/10"
+        />
+      ) : (
+        <>
+          <Button
+            buttonText="FeedBack"
+            onPress={handleFeedback}
+            variant="secondary"
+            className="!rounded-3xl !border-white/30 !text-white/30 !px-4 !py-1.5 !text-xs hover:!bg-white/10"
+          />
+          <section className="flex items-center gap-2 border border-white/30 px-2 rounded-3xl">
+            <CircleHelp size={20} color="#ffffff30" />
+            <Bell size={20} color="#ffffff30" />
+          </section>
+        </>
+      )}
       <button>
         {user?.profile ? (
           <img

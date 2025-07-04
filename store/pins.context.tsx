@@ -10,6 +10,7 @@ import type { PinsContextType, IPinnedStore } from "types/context.type";
 import type { IConversation } from "types/conversation.type";
 import type { ITicket } from "types/ticket.types";
 import type { IKnowledgeBase } from "types/knowledgeBase.type";
+import type { IUser } from "types/user.type";
 
 const PinsContext = createContext<PinsContextType | undefined>(undefined);
 
@@ -30,6 +31,7 @@ export default function PinsContextProvider({ children }: ProviderProps) {
     tickets: null,
     conversations: null,
     knowledgeBases: null,
+    agents: null,
   });
 
   // Load pinned items from localStorage on mount
@@ -46,6 +48,7 @@ export default function PinsContextProvider({ children }: ProviderProps) {
           tickets: null,
           conversations: null,
           knowledgeBases: null,
+          agents: null,
         });
       }
     }
@@ -109,6 +112,22 @@ export default function PinsContextProvider({ children }: ProviderProps) {
     setPinnedStore(newPinnedStore);
   };
 
+  const pinAgent = async (agent: IUser) => {
+    const newPinnedStore = {
+      ...pinnedStore,
+      agents: [...(pinnedStore.agents || []), agent],
+    };
+    setPinnedStore(newPinnedStore);
+  };
+
+  const unpinAgent = async (agent: IUser) => {
+    const newPinnedStore = {
+      ...pinnedStore,
+      agents: pinnedStore.agents?.filter((a) => a.documentId !== agent.documentId) || null,
+    };
+    setPinnedStore(newPinnedStore);
+  };
+
   const values = useMemo(() => {
     return {
       pinnedStore,
@@ -118,6 +137,8 @@ export default function PinsContextProvider({ children }: ProviderProps) {
       unpinTicket,
       pinKnowledgeBase,
       unpinKnowledgeBase,
+      pinAgent,
+      unpinAgent,
     };
   }, [pinnedStore]);
 

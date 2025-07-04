@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import Button from "components/utils/button";
-import { LoadingSection } from "components/utils/loadings";
 import {
   ArrowLeft,
   MessageCircle,
@@ -16,6 +15,7 @@ import {
   UserCheck,
   Building,
   Paperclip,
+  Pin,
 } from "lucide-react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
@@ -26,6 +26,8 @@ import { ticketTypeIcons } from "constants/typeIcons";
 import dayjs from "dayjs";
 import { useOrganisationContext } from "store/organisation.context";
 import { getPriorityColor, getStateColor } from "utils/getColors";
+import { usePinsContext } from "store/pins.context";
+import { TicketLoadingSkeleton } from "components/utils/orgSkeleton";
 
 type TabType = "tasks" | "conversation" | "notes";
 
@@ -50,6 +52,40 @@ export default function ViewTicketPage() {
   const [newNote, setNewNote] = useState("");
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+
+  const { pinnedStore, pinTicket, unpinTicket } = usePinsContext();
+
+  const handlePinTicket = async () => {
+    if (!ticket) return;
+
+    try {
+      await pinTicket(ticket);
+      toast.success("Ticket pinned successfully");
+    } catch (error) {
+      console.error("Error pinning ticket:", error);
+      toast.error("Failed to pin ticket");
+    }
+  };
+
+  const handleUnpinTicket = async () => {
+    if (!ticket) return;
+
+    try {
+      await unpinTicket(ticket);
+      toast.success("Ticket unpinned successfully");
+    } catch (error) {
+      console.error("Error unpinning ticket:", error);
+      toast.error("Failed to unpin ticket");
+    }
+  };
+
+  const isTicketPinned = () => {
+    if (!ticket) return false;
+    return (
+      pinnedStore.tickets?.some((t) => t.documentId === ticket.documentId) ||
+      false
+    );
+  };
 
   // Fetch comments for this ticket
   useEffect(() => {
@@ -131,7 +167,7 @@ export default function ViewTicketPage() {
   };
 
   if (loading) {
-    return <LoadingSection />;
+    return <TicketLoadingSkeleton />;
   }
 
   if (!ticket) {
@@ -165,6 +201,17 @@ export default function ViewTicketPage() {
             <h1 className="text-xl font-semibold">{ticket.title}</h1>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={isTicketPinned() ? handleUnpinTicket : handlePinTicket}
+              className={`p-2 rounded-full transition-colors ${
+                isTicketPinned()
+                  ? "text-green hover:text-green/80 hover:bg-green/10"
+                  : "text-white/60 hover:text-white hover:bg-white/10"
+              }`}
+              title={isTicketPinned() ? "Unpin ticket" : "Pin ticket"}
+            >
+              <Pin size={20} />
+            </button>
             <Button
               buttonText="Submit as Closed"
               onPress={handleCloseTicket}

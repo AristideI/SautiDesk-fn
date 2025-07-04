@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useConversations } from "hooks/useConversations";
 import { useOrganisationContext } from "store/organisation.context";
+import { usePinsContext } from "store/pins.context";
 import {
   Search,
   Send,
@@ -12,6 +13,7 @@ import {
   Mail,
   Phone,
   Calendar,
+  Pin,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -31,6 +33,7 @@ export default function OrgInboxPage() {
   } = useConversations();
 
   const { tickets } = useOrganisationContext();
+  const { pinnedStore, pinConversation, unpinConversation } = usePinsContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isTicketDropdownOpen, setIsTicketDropdownOpen] = useState(false);
@@ -119,6 +122,32 @@ export default function OrgInboxPage() {
     );
   };
 
+  const handlePinConversation = async (conversation: IConversation) => {
+    try {
+      await pinConversation(conversation);
+      toast.success("Conversation pinned successfully");
+    } catch (error) {
+      console.error("Error pinning conversation:", error);
+      toast.error("Failed to pin conversation");
+    }
+  };
+
+  const handleUnpinConversation = async (conversation: IConversation) => {
+    try {
+      await unpinConversation(conversation);
+      toast.success("Conversation unpinned successfully");
+    } catch (error) {
+      console.error("Error unpinning conversation:", error);
+      toast.error("Failed to unpin conversation");
+    }
+  };
+
+  const isConversationPinned = (conversationId: number) => {
+    return (
+      pinnedStore.conversations?.some((c) => c.id === conversationId) || false
+    );
+  };
+
   const getConversationTitle = (conversation: IConversation) => {
     const otherParticipants = conversation.participants.filter(
       (p) => p.documentId !== selectedConversation?.participants[0]?.documentId
@@ -203,18 +232,23 @@ export default function OrgInboxPage() {
             filteredConversations.map((conversation) => (
               <div
                 key={conversation.documentId}
-                onClick={() => setSelectedConversation(conversation)}
-                className={`p-4 border-b border-white/10 cursor-pointer hover:bg-white/5 transition-colors ${
+                className={`p-4 border-b border-white/10 hover:bg-white/5 transition-colors ${
                   selectedConversation?.documentId === conversation.documentId
                     ? "bg-white/10 border-l-4 border-l-green-500"
                     : ""
                 }`}
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                  <div
+                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer"
+                    onClick={() => setSelectedConversation(conversation)}
+                  >
                     <User size={20} />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={() => setSelectedConversation(conversation)}
+                  >
                     <h3 className="font-medium truncate">
                       {getConversationTitle(conversation)}
                     </h3>
@@ -222,11 +256,38 @@ export default function OrgInboxPage() {
                       {getLastMessage(conversation)}
                     </p>
                   </div>
-                  <div className="text-xs text-white/40">
-                    {getLastMessageTime(conversation)}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isConversationPinned(conversation.id)) {
+                          handleUnpinConversation(conversation);
+                        } else {
+                          handlePinConversation(conversation);
+                        }
+                      }}
+                      className={`p-1 rounded-full transition-colors ${
+                        isConversationPinned(conversation.id)
+                          ? "text-green hover:text-green/80"
+                          : "text-white/40 hover:text-white/60"
+                      }`}
+                      title={
+                        isConversationPinned(conversation.id)
+                          ? "Unpin conversation"
+                          : "Pin conversation"
+                      }
+                    >
+                      <Pin size={16} />
+                    </button>
+                    <div className="text-xs text-white/40">
+                      {getLastMessageTime(conversation)}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-white/40">
+                <div
+                  className="flex items-center gap-2 text-xs text-white/40 cursor-pointer"
+                  onClick={() => setSelectedConversation(conversation)}
+                >
                   <MessageSquare size={12} />
                   <span>{conversation.messages?.length || 0} messages</span>
                 </div>
