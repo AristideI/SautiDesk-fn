@@ -1,21 +1,23 @@
 import React, { useState, useRef } from "react";
 import { useConversations } from "hooks/useConversations";
 import { useOrganisationContext } from "store/organisation.context";
-import { LoadingSection } from "components/utils/loadings";
 import {
   Search,
   Send,
   Image as ImageIcon,
-  Paperclip,
   Ticket,
   ChevronDown,
   User,
-  Calendar,
   MessageSquare,
+  Mail,
+  Phone,
+  Calendar,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import type { ITicket } from "types/ticket.types";
+import { InboxLoadingSkeleton } from "components/utils/tableSkeletons";
+import type { IConversation } from "types/conversation.type";
 
 export default function OrgInboxPage() {
   const {
@@ -117,17 +119,14 @@ export default function OrgInboxPage() {
     );
   };
 
-  const getConversationTitle = (conversation: any) => {
+  const getConversationTitle = (conversation: IConversation) => {
     const otherParticipants = conversation.participants.filter(
-      (p: any) =>
-        p.documentId !== selectedConversation?.participants[0]?.documentId
+      (p) => p.documentId !== selectedConversation?.participants[0]?.documentId
     );
-    return (
-      otherParticipants.map((p: any) => p.username).join(", ") || "Group Chat"
-    );
+    return otherParticipants.map((p) => p.username).join(", ") || "Group Chat";
   };
 
-  const getLastMessage = (conversation: any) => {
+  const getLastMessage = (conversation: IConversation) => {
     const messages = conversation.messages || [];
     if (messages.length === 0) return "No messages yet";
 
@@ -137,7 +136,7 @@ export default function OrgInboxPage() {
       : lastMessage.content;
   };
 
-  const getLastMessageTime = (conversation: any) => {
+  const getLastMessageTime = (conversation: IConversation) => {
     const messages = conversation.messages || [];
     if (messages.length === 0) return "";
 
@@ -145,9 +144,15 @@ export default function OrgInboxPage() {
     return dayjs(lastMessage.createdAt).format("HH:mm");
   };
 
+  const getOtherParticipant = () => {
+    if (!selectedConversation) return null;
+    return selectedConversation.participants.find(
+      (p) => p.documentId !== selectedConversation.participants[0]?.documentId
+    );
+  };
+
   if (loading) {
-    // return <LoadingSection />;
-    return <div>Loading...</div>;
+    return <InboxLoadingSkeleton />;
   }
 
   if (error) {
@@ -169,7 +174,7 @@ export default function OrgInboxPage() {
   return (
     <main className="h-screen flex">
       {/* Left Section - Conversations List */}
-      <div className="w-1/3 border-r border-white/20 flex flex-col">
+      <div className="w-1/4 border-r border-white/20 flex flex-col">
         {/* Header */}
         <div className="p-4 border-b border-white/20">
           <h1 className="text-xl font-semibold mb-4">Inbox</h1>
@@ -231,7 +236,7 @@ export default function OrgInboxPage() {
         </div>
       </div>
 
-      {/* Right Section - Messages */}
+      {/* Center Section - Messages */}
       <div className="flex-1 flex flex-col">
         {selectedConversation ? (
           <>
@@ -452,6 +457,110 @@ export default function OrgInboxPage() {
                 Select a conversation
               </h2>
               <p>Choose a conversation from the list to start messaging</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right Section - Participant Information */}
+      <div className="w-1/4 border-l border-white/20 flex flex-col">
+        {selectedConversation && getOtherParticipant() ? (
+          <>
+            {/* Participant Header */}
+            <div className="p-4 border-b border-white/20">
+              <h2 className="text-lg font-semibold">Participant Info</h2>
+            </div>
+
+            {/* Participant Details */}
+            <div className="flex-1 p-4">
+              <div className="text-center mb-6">
+                {getOtherParticipant()?.profile?.url ? (
+                  <img
+                    src={getOtherParticipant()?.profile?.url}
+                    alt={getOtherParticipant()?.username}
+                    className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border-2 border-white/20"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 border-2 border-white/20">
+                    <User size={32} />
+                  </div>
+                )}
+                <h3 className="text-xl font-semibold mb-1">
+                  {getOtherParticipant()?.username}
+                </h3>
+                <p className="text-white/60 text-sm">
+                  {getOtherParticipant()?.userRole}
+                </p>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                  <Mail size={16} className="text-white/60" />
+                  <div>
+                    <p className="text-sm text-white/60">Email</p>
+                    <p className="text-sm">{getOtherParticipant()?.email}</p>
+                  </div>
+                </div>
+
+                {getOtherParticipant()?.phone && (
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                    <Phone size={16} className="text-white/60" />
+                    <div>
+                      <p className="text-sm text-white/60">Phone</p>
+                      <p className="text-sm">{getOtherParticipant()?.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                  <Calendar size={16} className="text-white/60" />
+                  <div>
+                    <p className="text-sm text-white/60">Joined</p>
+                    <p className="text-sm">
+                      {dayjs(getOtherParticipant()?.createdAt).format(
+                        "MMM DD, YYYY"
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conversation Stats */}
+              <div className="mt-6 p-4 bg-white/5 rounded-lg">
+                <h4 className="font-medium mb-3">Conversation Stats</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-white/60">
+                      Total Messages
+                    </span>
+                    <span className="text-sm font-medium">
+                      {selectedConversation.messages?.length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-white/60">Started</span>
+                    <span className="text-sm font-medium">
+                      {selectedConversation.messages &&
+                      selectedConversation.messages.length > 0
+                        ? dayjs(
+                            selectedConversation.messages[0].createdAt
+                          ).format("MMM DD")
+                        : "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center text-white/60">
+              <User size={48} className="mx-auto mb-4 opacity-50" />
+              <h2 className="text-lg font-semibold mb-2">No Participant</h2>
+              <p className="text-sm">
+                Select a conversation to view participant details
+              </p>
             </div>
           </div>
         )}

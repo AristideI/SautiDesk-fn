@@ -1,16 +1,30 @@
+import type { IActivity } from "./activity.type";
+import type { IComment } from "./comment.type";
 import type { IUser } from "./user.type";
 
 export interface IKnowledgeBase {
   id: number;
   documentId: string;
+  title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any;
+  author: IUser;
+  comments: IComment[];
+  state: IState;
+  tags: string[];
+  activities: IActivity[];
   createdAt: string;
   updatedAt: string;
-  title: string;
-  content: string;
-  author_id: IUser;
-  conversation: string; // assuming this is a string (e.g. a reference or ID)
 }
 
+export interface ICreateKnowledgeBase {
+  title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  content: any;
+  author: number;
+}
 
-
-// we can have somethign like votes on comments so that users can upvote or downvote comments
+enum IState {
+  PUBLIC = "public",
+  PRIVATE = "private",
+}

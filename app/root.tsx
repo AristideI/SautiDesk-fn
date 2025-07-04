@@ -13,6 +13,7 @@ import "./app.css";
 import AuthContextProvider from "store/auth.context";
 import PinsContextProvider from "store/pins.context";
 import NotificationContextProvider from "store/notification.context";
+import KnowledgeBaseContextProvider from "store/knowledgeBase.context";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -51,7 +52,9 @@ export default function App() {
     <AuthContextProvider>
       <PinsContextProvider>
         <NotificationContextProvider>
-          <Outlet />
+          <KnowledgeBaseContextProvider>
+            <Outlet />
+          </KnowledgeBaseContextProvider>
           <ToastContainer position="top-center" theme="dark" />
         </NotificationContextProvider>
       </PinsContextProvider>
