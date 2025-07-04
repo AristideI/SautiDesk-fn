@@ -262,7 +262,7 @@ export default function OrgKnowledgeBase() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex">
+      <div className="flex-1 flex max-h-screen overflow-y-auto">
         {/* Left Section - Article List */}
         <div className="w-1/4 border-r border-white/20 flex flex-col">
           {/* Search */}

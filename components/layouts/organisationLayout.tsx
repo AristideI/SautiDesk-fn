@@ -1,6 +1,6 @@
 import Logo from "components/utils/logo";
 import { OrgUserButton } from "components/utils/userButton";
-import { Power, X } from "lucide-react";
+import { Power, X, Phone } from "lucide-react";
 import { NavLink, Outlet, useMatch, useParams } from "react-router";
 import OrganisationContextProvider from "store/organisation.context";
 import { navLinks } from "constants/navLinks";
@@ -28,20 +28,83 @@ export default function OrganisationLayout() {
       <main className="flex justify-end relative w-full min-h-screen">
         <aside className="w-1/6 fixed h-screen top-0 left-0 bg-black p-4 flex flex-col justify-between">
           <OrgUserButton />
-          <section className="flex flex-col gap-2 flex-1 pt-10">
-            {navLinks(organisationId || "").map((page) => (
-              <AsideLink
-                key={page.name}
-                name={page.name}
-                Icon={page.Icon}
-                path={page.path}
-                onClick={
-                  page.name === "Notifications"
-                    ? openNotificationModal
-                    : undefined
-                }
-              />
-            ))}
+          <section className="flex flex-col gap-6 h-full py-8">
+            <section className="flex flex-col gap-2 h-fit">
+              {navLinks(organisationId || "").map((page) => (
+                <AsideLink
+                  key={page.name}
+                  name={page.name}
+                  Icon={page.Icon}
+                  path={page.path}
+                  onClick={
+                    page.name === "Notifications"
+                      ? openNotificationModal
+                      : undefined
+                  }
+                />
+              ))}
+            </section>
+
+            {/* Conversation */}
+            <div className="">
+              <h3 className="text-sm text-white/70 mb-3 font-medium">
+                Conversation
+              </h3>
+              <button className="flex items-center gap-2 px-4 py-2 text-sm text-white/70 hover:text-green transition-colors rounded-lg w-full">
+                <Phone size={20} />
+                +12346573106
+              </button>
+            </div>
+
+            {/* Favorites */}
+            <div>
+              <h3 className="text-sm text-white/70 mb-3 font-medium">
+                Favorites
+              </h3>
+
+              {/* Pinned Tickets */}
+              <div className="mb-4">
+                <h4 className="text-xs text-white/50 mb-2">Pinned Tickets</h4>
+                <div className="space-y-2">
+                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
+                    Ticket #1234 - Login Issue
+                  </div>
+                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
+                    Ticket #5678 - Payment Error
+                  </div>
+                </div>
+              </div>
+
+              {/* Pinned Knowledge Base */}
+              <div className="mb-4">
+                <h4 className="text-xs text-white/50 mb-2">
+                  Pinned Knowledge Base
+                </h4>
+                <div className="space-y-2">
+                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
+                    How to Reset Password
+                  </div>
+                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
+                    API Documentation
+                  </div>
+                </div>
+              </div>
+
+              {/* Pinned Conversations */}
+              <div className="mb-4">
+                <h4 className="text-xs text-white/50 mb-2">
+                  Pinned Conversations
+                </h4>
+                <div className="space-y-2">
+                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
+                    Support Chat #1
+                  </div>
+                  <div className="px-3 py-2 text-xs text-white/60 bg-white/5 rounded-lg">
+                    General Discussion
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
           <section className="flex items-center justify-between">
             <div>
