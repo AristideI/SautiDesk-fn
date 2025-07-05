@@ -1,4 +1,3 @@
-import { API } from "api";
 import Button from "components/utils/button";
 import {
   Download,
@@ -11,7 +10,6 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import { useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -120,14 +118,6 @@ export default function ViewOrganisation() {
   const formatChangeValue = (change: number) => {
     return change > 0 ? `+${change}%` : `${change}%`;
   };
-
-  useEffect(() => {
-    console.log("LISTING COLLECTIONS");
-    API.astraHandler.listCollections().then((colls) => {
-      console.log("COLLECTION");
-      console.log(colls);
-    });
-  }, []);
 
   return (
     <main className="min-h-screen p-6">
