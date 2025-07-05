@@ -12,7 +12,7 @@ import Button from "components/utils/button";
 import useOrganisations from "hooks/useOrganisations";
 import { API } from "api";
 import type { CreateOrganisationForm } from "types/organisation.type";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 interface CreateOrganisationModalProps {
   isOpen: boolean;

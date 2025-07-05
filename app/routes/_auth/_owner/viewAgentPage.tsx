@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useOrganisationContext } from "store/organisation.context";
 import { usePinsContext } from "store/pins.context";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 import type { IUser } from "types/user.type";
 import CreateTicketModal from "components/modals/createTicketModal";

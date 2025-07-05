@@ -3,7 +3,7 @@ import Logo from "components/utils/logo";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useAuthContext } from "store/auth.context";
 
 export default function LoginPage() {

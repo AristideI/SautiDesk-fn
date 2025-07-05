@@ -15,7 +15,7 @@ import {
   Calendar,
   Pin,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import dayjs from "dayjs";
 import type { ITicket } from "types/ticket.types";
 import { InboxLoadingSkeleton } from "components/utils/tableSkeletons";

@@ -1,11 +1,3 @@
-setup strapi backend 
-          initialise goigle authh in the strapli backend
-                    connect the proeject to the google cloud and link the frontend to the backend
-
-** Make sure the authentication is working properly before proceeding to the next step
-
-
-
 churn prediction model
           based on the data we have, we need to predict the churn of the users
           we need to use the data to train the model
@@ -16,22 +8,19 @@ churn prediction model
 
 
 customer satisfaction modell
-          based on the data we have, we need to predict the satisfaction of the users
+          this mode will be used to predict the satisfaction of the users
           we need to use the data to train the model
           we need to use the model to predict the satisfaction of the users
           we need to use the model to predict the satisfaction of the users
 
-          this model will be used to predict the satisfaction of the users
 
-
-
-          customer retention model
-          based on the data we have, we need to predict the retention of the users
-          we need to use the data to train the model
-          we need to use the model to predict the retention of the users
-          we need to use the model to predict the retention of the users
-
+customer retention model
           this model will be used to predict the retention of the users
+                    retention is the probability of the user to stay with the company
 
 
-          customer acquisition model
+train a model to predict with transformer model
+          we need to use the data to train the model
+
+
+create algorithm to search through vector database

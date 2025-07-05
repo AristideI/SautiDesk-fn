@@ -10,7 +10,7 @@ import { useState, useRef } from "react";
 import { useAuthContext } from "store/auth.context";
 import { useOrganisationContext } from "store/organisation.context";
 import { API } from "api";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import React from "react";
 
 interface CreateTicketModalProps {

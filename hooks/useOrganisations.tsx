@@ -1,6 +1,6 @@
 import { API } from "api";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useAuthContext } from "store/auth.context";
 import type { IOrganisation } from "types/organisation.type";
 

@@ -1,9 +1,11 @@
+import { API } from "api";
 import Button from "components/utils/button";
 import Logo from "components/utils/logo";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
+import { UserRole } from "types/user.type";
 
 type RegistrationStep = "email" | "otp" | "password";
 
@@ -11,6 +13,10 @@ export default function RegisterPage() {
   const [currentStep, setCurrentStep] = useState<RegistrationStep>("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,9 +38,11 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true);
+
     try {
-      // Simulate OTP sending
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const otp = await API.otpHandler.createOTP();
+      const otpMessage = `Thanks for registering with Sauti Desk. Your OTP is ${otp.otp}`;
+      await API.smsHandler.sendMail(email, "OTP Verification", otpMessage);
       setCurrentStep("otp");
       toast.success("OTP sent to your email");
     } catch (e) {
@@ -55,10 +63,14 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      // Simulate OTP validation
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const otp = await API.otpHandler.verifyOTP(otpString);
+      if (!otp) {
+        toast.error("Invalid OTP");
+        return;
+      }
       setCurrentStep("password");
       toast.success("OTP verified successfully");
+      API.otpHandler.deleteOTP(otp.documentId);
     } catch (e) {
       console.log(e);
       toast.error("Invalid OTP");
@@ -74,8 +86,14 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     try {
-      // Simulate registration
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const user = await API.userHandler.register({
+        email,
+        password,
+        username,
+        phone,
+        userRole: UserRole.ADMIN,
+      });
+      console.log("user", user);
       toast.success("Account created successfully!");
       navigate("/login");
     } catch (e) {
@@ -88,6 +106,22 @@ export default function RegisterPage() {
 
   function validatePasswordForm() {
     let isValid = true;
+
+    if (!username) {
+      setUsernameError("Name is required");
+      isValid = false;
+    } else if (username.length < 2) {
+      setUsernameError("Name must be at least 2 characters");
+      isValid = false;
+    }
+
+    if (!phone) {
+      setPhoneError("Phone number is required");
+      isValid = false;
+    } else if (phone.length < 10) {
+      setPhoneError("Please enter a valid phone number");
+      isValid = false;
+    }
 
     if (!password) {
       setPasswordError("Password is required");
@@ -134,9 +168,12 @@ export default function RegisterPage() {
     }
   }
 
-  function resendOTP() {
-    toast.info("Resending OTP...");
-    // Simulate resending OTP
+  async function resendOTP() {
+    toast.loading("Resending OTP...");
+    const otp = await API.otpHandler.createOTP();
+    const otpMessage = `Thanks for registering with Sauti Desk. Your OTP is ${otp.otp}`;
+    await API.smsHandler.sendMail(email, "OTP Verification", otpMessage);
+    toast.success("OTP sent to your email");
   }
 
   function goBack() {
@@ -270,8 +307,11 @@ export default function RegisterPage() {
 
             {currentStep === "password" && (
               <>
-                <p className="font-bold text-2xl">Create Password</p>
-                <p>Please enter a password to secure your account</p>
+                <p className="font-bold text-2xl">Complete Your Profile</p>
+                <p>
+                  Please provide your details and create a password to secure
+                  your account
+                </p>
                 <form
                   className="flex flex-col gap-4 w-full"
                   onSubmit={(e) => {
@@ -279,6 +319,44 @@ export default function RegisterPage() {
                     handleRegister();
                   }}
                 >
+                  <label htmlFor="username" className="flex flex-col gap-1">
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={username}
+                      onChange={(e) => {
+                        setUsernameError("");
+                        setUsername(e.target.value);
+                      }}
+                      className={`border border-dark-green rounded-lg p-2 w-full outline-none ${
+                        usernameError
+                          ? "border-red-500 text-red-600"
+                          : "border-dark-green"
+                      }`}
+                    />
+                    {usernameError && (
+                      <p className="text-red-600 text-sm">{usernameError}</p>
+                    )}
+                  </label>
+                  <label htmlFor="phone" className="flex flex-col gap-1">
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={phone}
+                      onChange={(e) => {
+                        setPhoneError("");
+                        setPhone(e.target.value);
+                      }}
+                      className={`border border-dark-green rounded-lg p-2 w-full outline-none ${
+                        phoneError
+                          ? "border-red-500 text-red-600"
+                          : "border-dark-green"
+                      }`}
+                    />
+                    {phoneError && (
+                      <p className="text-red-600 text-sm">{phoneError}</p>
+                    )}
+                  </label>
                   <label className="flex flex-col gap-1 relative">
                     <input
                       type={isPasswordVisible ? "text" : "password"}
@@ -344,7 +422,7 @@ export default function RegisterPage() {
                     </div>
                   </label>
                   <Button
-                    buttonText="Register with Email"
+                    buttonText="Create Account"
                     onPress={handleRegister}
                     variant="primary"
                     className="cursor-pointer"
@@ -422,9 +500,8 @@ export function AuthLeftSection() {
             Sauti Desk is your unified platform for managing support tickets,
             communication, and knowledge sharing. Whether you&apos;re an
             organization owner, team member, or client, everything you need is
-            in one place.
-            Log in to continue or create an account to get started with seamless
-            support.
+            in one place. Log in to continue or create an account to get started
+            with seamless support.
           </p>
           <p className="font-serif">SautiDesk &#169; 2025</p>
         </div>

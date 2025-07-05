@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type { IConversation } from "types/conversation.type";
 import type { IMessage } from "types/message.type";
 

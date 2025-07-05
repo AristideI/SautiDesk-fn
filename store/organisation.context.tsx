@@ -1,6 +1,6 @@
 import { API } from "api";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type { IOrganisation } from "types/organisation.type";
 import type { ITicket } from "types/ticket.types";
 import type { IUser } from "types/user.type";

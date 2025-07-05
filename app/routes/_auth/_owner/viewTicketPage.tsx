@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import type { IComment } from "types/comment.type";
 import { TicketState } from "types/ticket.types";
 import { ticketTypeIcons } from "constants/typeIcons";

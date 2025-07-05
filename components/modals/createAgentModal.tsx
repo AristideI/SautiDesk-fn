@@ -3,7 +3,7 @@ import { X, Shield, Mail, Phone, Briefcase, Lock, User } from "lucide-react";
 import Button from "components/utils/button";
 import { UserHandler } from "api/user.handler";
 import { AgentHandler } from "api/agent.handler";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useOrganisationContext } from "store/organisation.context";
 
 interface CreateAgentModalProps {
