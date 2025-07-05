@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.8.1](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.0...v0.8.1) (2025-07-05)
+
+
+### Features
+
+* handler pins ([1816248](https://github.com/AristideI/SautiDesk-fn/commit/1816248baa6e8df16f6542fa8c5f5dd5bdfcfa17))
+* move astra logic to backend ([06ab221](https://github.com/AristideI/SautiDesk-fn/commit/06ab221397c58af693d144c3a41de5a6fad8f1d5))
+* refactor org layout ([3d20b8c](https://github.com/AristideI/SautiDesk-fn/commit/3d20b8c7688c01b10a1c9c6b2f76ddcdb6ed54a4))
+
 ## [0.8.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.7.0...v0.8.0) (2025-07-04)
 
 
