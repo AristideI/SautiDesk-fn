@@ -151,7 +151,10 @@ export default function CreateTicketModal({
       // Then, use GPT to generate ticket information
       const agentsList =
         (agents
-          ?.map((agent) => agent.documentId)
+          ?.map(
+            (agent) =>
+              `ID: ${agent.documentId}, About ${agent.agent?.about}, expertise: ${agent.agent?.qualification} ${agent.agent?.areaOfExpertise}`
+          )
           .filter(Boolean) as string[]) || [];
       const ticketData = await API.openAIHandler.getTicketData(
         transcription,

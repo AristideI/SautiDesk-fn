@@ -1,3 +1,4 @@
+import type { IAgent } from "./agent.type";
 import type { IImage } from "./image.type";
 import type { IOrganisation } from "./organisation.type";
 import type { ITicket } from "./ticket.types";
@@ -8,6 +9,7 @@ export interface IUser {
   username: string;
   email: string;
   userRole: UserRole;
+  agent?: IAgent;
   profile: IImage;
   phone?: string;
   organisation?: IOrganisation;
