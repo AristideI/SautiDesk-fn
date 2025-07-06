@@ -12,6 +12,20 @@ A modern, production-ready frontend for the **SautiDesk** platform, built using 
 
 ---
 
+## Video Demo
+
+### [Link To Video Demo](https://drive.google.com/file/d/1l4o8gIX9XkdZd6TlK9vAEE9G58lowoy8/view?usp=sharing)
+
+---
+
+## Deployed Versions
+
+[Front-end](https://sauti-desk-fn.vercel.app/) => Vercel Platform
+
+[Back-end](https://sautidesk-bn.onrender.com) => Strapi Admin UI
+
+---
+
 ## ⚡️ Tech Stack
 
 - **React 19**

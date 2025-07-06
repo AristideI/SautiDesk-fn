@@ -116,43 +116,4 @@ export const TicketHandler = {
     });
     return data.data;
   },
-
-  async updateState(id: string, state: string) {
-    const { data } = await strapi.put<{
-      data: ITicket;
-    }>(
-      `/tickets/${id}`,
-      { state },
-      {
-        headers: authHeaders(),
-      }
-    );
-    return data.data;
-  },
-
-  async assignTicket(id: string, assignedTo: string) {
-    const { data } = await strapi.put<{
-      data: ITicket;
-    }>(
-      `/tickets/${id}`,
-      { assignedTo },
-      {
-        headers: authHeaders(),
-      }
-    );
-    return data.data;
-  },
-
-  async updatePriority(id: string, priority: string) {
-    const { data } = await strapi.put<{
-      data: ITicket;
-    }>(
-      `/tickets/${id}`,
-      { priority },
-      {
-        headers: authHeaders(),
-      }
-    );
-    return data.data;
-  },
 };

@@ -25,6 +25,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { useOrganisationContext } from "store/organisation.context";
+import { useMemo } from "react";
 
 interface MetricCard {
   title: string;
@@ -51,64 +53,98 @@ interface TicketTypeData {
 // Sample data for the dashboard
 const monthlyData: MonthlyData[] = [
   { month: "Jan", created: 45, solved: 42, responseTime: 2.1 },
-  { month: "Feb", created: 52, solved: 48, responseTime: 1.8 },
-  { month: "Mar", created: 38, solved: 35, responseTime: 2.3 },
-  { month: "Apr", created: 61, solved: 58, responseTime: 1.9 },
+  { month: "Feb", created: 52, solved: 38, responseTime: 1.8 },
+  { month: "Mar", created: 38, solved: 25, responseTime: 2.3 },
+  { month: "Apr", created: 61, solved: 48, responseTime: 1.9 },
   { month: "May", created: 55, solved: 52, responseTime: 2.0 },
-  { month: "Jun", created: 67, solved: 64, responseTime: 1.7 },
-  { month: "Jul", created: 49, solved: 46, responseTime: 2.2 },
-  { month: "Aug", created: 73, solved: 70, responseTime: 1.6 },
+  { month: "Jun", created: 67, solved: 44, responseTime: 1.7 },
+  { month: "Jul", created: 49, solved: 36, responseTime: 2.2 },
+  { month: "Aug", created: 73, solved: 50, responseTime: 1.6 },
   { month: "Sep", created: 58, solved: 55, responseTime: 1.9 },
   { month: "Oct", created: 64, solved: 61, responseTime: 1.8 },
   { month: "Nov", created: 71, solved: 68, responseTime: 1.7 },
   { month: "Dec", created: 78, solved: 75, responseTime: 1.5 },
 ];
 
-const ticketTypeData: TicketTypeData[] = [
-  { name: "Technical Issues", value: 35, color: "#8B5CF6" },
-  { name: "Feature Requests", value: 25, color: "#10B981" },
-  { name: "Bug Reports", value: 20, color: "#F59E0B" },
-  { name: "General Support", value: 15, color: "#EF4444" },
-  { name: "Billing", value: 5, color: "#3B82F6" },
-];
+// Color mapping for ticket types
+const ticketTypeColors: Record<string, string> = {
+  TICKET: "#8B5CF6",
+  INCIDENT: "#EF4444",
+  QUESTION: "#3B82F6",
+  REQUEST: "#10B981",
+  PROBLEM: "#F59E0B",
+  SUGGESTION: "#8B5CF6",
+  OTHER: "#6B7280",
+};
 
-const metrics: MetricCard[] = [
-  {
-    title: "Created Tickets",
-    value: "847",
-    change: 12.5,
-    changeType: "increase",
-    icon: <MessageSquare size={24} />,
-    color: "from-blue-500 to-blue-600",
-  },
-  {
-    title: "Unresolved Tickets",
-    value: "23",
-    change: 8.2,
-    changeType: "decrease",
-    icon: <AlertCircle size={24} />,
-    color: "from-orange-500 to-orange-600",
-  },
-  {
-    title: "Solved Tickets",
-    value: "824",
-    change: 15.3,
-    changeType: "increase",
-    icon: <CheckCircle size={24} />,
-    color: "from-green-500 to-green-600",
-  },
-  {
-    title: "Avg First Response",
-    value: "1.8h",
-    change: 5.7,
-    changeType: "decrease",
-    icon: <Clock size={24} />,
-    color: "from-purple-500 to-purple-600",
-  },
-];
+// Metrics will be calculated dynamically based on tickets data
 
 export default function ViewOrganisation() {
-  // const { tickets } = useOrganisationContext();
+  const { tickets } = useOrganisationContext();
+
+  // Generate ticket type data from real tickets
+  const ticketTypeData: TicketTypeData[] = useMemo(() => {
+    if (!tickets) return [];
+
+    const typeCounts: Record<string, number> = {};
+
+    tickets.forEach((ticket) => {
+      const type = ticket.type;
+      typeCounts[type] = (typeCounts[type] || 0) + 1;
+    });
+
+    return Object.entries(typeCounts).map(([type, count]) => ({
+      name: type.charAt(0) + type.slice(1).toLowerCase(), // Capitalize first letter
+      value: count,
+      color: ticketTypeColors[type] || "#6B7280",
+    }));
+  }, [tickets]);
+
+  // Calculate metrics from real ticket data
+  const metrics: MetricCard[] = useMemo(() => {
+    if (!tickets) return [];
+
+    const totalTickets = tickets.length;
+    const resolvedTickets = tickets.filter(
+      (ticket) => ticket.state === "RESOLVED" || ticket.state === "CLOSED"
+    ).length;
+    const unresolvedTickets = totalTickets - resolvedTickets;
+
+    return [
+      {
+        title: "Created Tickets",
+        value: totalTickets.toString(),
+        change: 12.5, // TODO: Calculate actual change from previous period
+        changeType: "increase" as const,
+        icon: <MessageSquare size={24} />,
+        color: "from-blue-500 to-blue-600",
+      },
+      {
+        title: "Unresolved Tickets",
+        value: unresolvedTickets.toString(),
+        change: 8.2, // TODO: Calculate actual change from previous period
+        changeType: "decrease" as const,
+        icon: <AlertCircle size={24} />,
+        color: "from-orange-500 to-orange-600",
+      },
+      {
+        title: "Solved Tickets",
+        value: resolvedTickets.toString(),
+        change: 15.3, // TODO: Calculate actual change from previous period
+        changeType: "increase" as const,
+        icon: <CheckCircle size={24} />,
+        color: "from-green-500 to-green-600",
+      },
+      {
+        title: "Avg First Response",
+        value: "1.8h", // TODO: Calculate actual average response time
+        change: 5.7, // TODO: Calculate actual change from previous period
+        changeType: "decrease" as const,
+        icon: <Clock size={24} />,
+        color: "from-purple-500 to-purple-600",
+      },
+    ];
+  }, [tickets]);
 
   const handleExportCSV = () => {
     // TODO: Implement CSV export functionality
@@ -303,7 +339,7 @@ export default function ViewOrganisation() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) =>
-                    `${name} ${(percent || 0 * 100).toFixed(0)}%`
+                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
                   fill="#8884d8"
