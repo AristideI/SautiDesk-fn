@@ -16,6 +16,9 @@ import {
   Building,
   Paperclip,
   Pin,
+  Activity,
+  TrendingUp,
+  GitBranch,
 } from "lucide-react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
@@ -29,7 +32,7 @@ import { getPriorityColor, getStateColor } from "utils/getColors";
 import { usePinsContext } from "store/pins.context";
 import { TicketLoadingSkeleton } from "components/utils/orgSkeleton";
 
-type TabType = "tasks" | "conversation" | "notes";
+type TabType = "tasks" | "conversation" | "notes" | "insights";
 
 interface Note {
   id: string;
@@ -54,6 +57,8 @@ export default function ViewTicketPage() {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
 
   const { pinnedStore, pinTicket, unpinTicket } = usePinsContext();
+
+  console.log(ticket?.activities);
 
   const handlePinTicket = async () => {
     if (!ticket) return;
@@ -256,6 +261,17 @@ export default function ViewTicketPage() {
           >
             <CheckSquare size={16} />
             <span>Notes</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("insights")}
+            className={`flex items-center gap-2 px-6 py-3 border-b-2 transition-colors ${
+              activeTab === "insights"
+                ? "border-green text-green"
+                : "border-transparent text-white/60 hover:text-white"
+            }`}
+          >
+            <TrendingUp size={16} />
+            <span>Insights</span>
           </button>
         </div>
       </div>
@@ -508,6 +524,183 @@ export default function ViewTicketPage() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "insights" && (
+          <div className="h-full overflow-y-auto p-6">
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Ticket Activities */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Activity size={20} className="text-green" />
+                  <h3 className="text-lg font-semibold">Ticket Activities</h3>
+                </div>
+                <div className="space-y-4">
+                  {ticket?.activities && ticket.activities.length > 0 ? (
+                    ticket.activities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="flex gap-3 p-3 bg-white/5 rounded-lg"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 bg-green/20 rounded-full flex items-center justify-center">
+                          {activity.user?.profile?.url ? (
+                            <img
+                              src={activity.user.profile.url}
+                              alt="avatar"
+                              className="w-8 h-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <User size={20} className="text-green" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-medium text-white/80">
+                              {activity.user?.username || "Unknown User"}
+                            </span>
+                            <span className="text-xs text-white/40">
+                              {dayjs(activity.createdAt).format(
+                                "MMM DD, HH:mm"
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs ${
+                                activity.type === "ticket"
+                                  ? "bg-blue-500/20 text-blue-400"
+                                  : activity.type === "comment"
+                                  ? "bg-green-500/20 text-green-400"
+                                  : activity.type === "reply"
+                                  ? "bg-purple-500/20 text-purple-400"
+                                  : "bg-gray-500/20 text-gray-400"
+                              }`}
+                            >
+                              {activity.type}
+                            </span>
+                          </div>
+                          <p className="text-white/60 text-sm">
+                            {activity.content}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-white/60">
+                      No activities recorded for this ticket yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Similar Tickets */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <GitBranch size={20} className="text-green" />
+                  <h3 className="text-lg font-semibold">Similar Tickets</h3>
+                </div>
+                <div className="space-y-4">
+                  {ticket?.similarTickets &&
+                  ticket.similarTickets.length > 0 ? (
+                    ticket.similarTickets.map((similarTicket) => (
+                      <div
+                        key={similarTicket.id}
+                        className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                        onClick={() =>
+                          navigate(
+                            `/o/organisations/${organisation?.documentId}/tickets/${similarTicket.documentId}`
+                          )
+                        }
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-white/80">
+                              #{similarTicket.documentId}
+                            </span>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs ${
+                                similarTicket.state === "OPEN"
+                                  ? "bg-blue-500/20 text-blue-400"
+                                  : similarTicket.state === "IN_PROGRESS"
+                                  ? "bg-yellow-500/20 text-yellow-400"
+                                  : similarTicket.state === "RESOLVED"
+                                  ? "bg-green-500/20 text-green-400"
+                                  : "bg-gray-500/20 text-gray-400"
+                              }`}
+                            >
+                              {similarTicket.state}
+                            </span>
+                          </div>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              similarTicket.priority === "HIGH"
+                                ? "bg-red-500/20 text-red-400"
+                                : similarTicket.priority === "MEDIUM"
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-green-500/20 text-green-400"
+                            }`}
+                          >
+                            {similarTicket.priority}
+                          </span>
+                        </div>
+                        <h4 className="font-medium text-white/80 mb-2">
+                          {similarTicket.title}
+                        </h4>
+                        <p className="text-white/60 text-sm mb-2 line-clamp-2">
+                          {similarTicket.description}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-white/40">
+                          <span>
+                            Created:{" "}
+                            {dayjs(similarTicket.createdAt).format(
+                              "MMM DD, YYYY"
+                            )}
+                          </span>
+                          <span>Type: {similarTicket.type}</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-white/60">
+                      No similar tickets found for this ticket.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Insights Summary */}
+              <div className="bg-white/5 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp size={20} className="text-green" />
+                  <h3 className="text-lg font-semibold">Insights Summary</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-green mb-1">
+                      {ticket?.activities?.length || 0}
+                    </div>
+                    <div className="text-sm text-white/60">
+                      Total Activities
+                    </div>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-blue-400 mb-1">
+                      {ticket?.similarTickets?.length || 0}
+                    </div>
+                    <div className="text-sm text-white/60">Similar Tickets</div>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <div className="text-2xl font-bold text-yellow-400 mb-1">
+                      {dayjs(ticket?.createdAt).diff(dayjs(), "days") * -1}
+                    </div>
+                    <div className="text-sm text-white/60">
+                      Days Since Created
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

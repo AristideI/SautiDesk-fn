@@ -1,3 +1,4 @@
+import type { IActivity } from "./activity.type";
 import type { IOrganisation } from "./organisation.type";
 import type { IUser } from "./user.type";
 
@@ -8,6 +9,8 @@ export interface ITicket {
   description: string;
   state: TicketState;
   priority: TicketPriority;
+  similarTickets?: ITicket[];
+  activities?: IActivity[];
   type: TicketType;
   assignedTo?: IUser;
   ownedBy: IUser;

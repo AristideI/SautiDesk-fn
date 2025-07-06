@@ -88,13 +88,13 @@ export const TicketHandler = {
     //     data.data.title
     //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
     // );
-    // await API.smsHandler.sendMail(
-    //   "i.aristide08@gmail.com",
-    //   "Ticket created",
-    //   `Ticket created: ${
-    //     data.data.title
-    //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
-    // );
+    await API.smsHandler.sendMail(
+      "i.aristide08@gmail.com",
+      "Ticket created",
+      `Ticket created: ${
+        data.data.title
+      } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
+    );
 
     return data.data;
   },
