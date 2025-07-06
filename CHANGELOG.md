@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.8.3](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.2...v0.8.3) (2025-07-06)
+
+
+### Features
+
+* registration ([860e0c3](https://github.com/AristideI/SautiDesk-fn/commit/860e0c3c06386cdbc61817b0f52ac0c8461b9c1c))
+* ticket insights ([9f88205](https://github.com/AristideI/SautiDesk-fn/commit/9f88205b9db6412a7b5aff8adb3013291c2d4dfb))
+
 ### [0.8.2](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.1...v0.8.2) (2025-07-05)
 
 ### [0.8.1](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.0...v0.8.1) (2025-07-05)
