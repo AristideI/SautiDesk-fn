@@ -5,6 +5,14 @@ export default {
   moduleNameMapper: {
     "^~/(.*)$": "<rootDir>/app/$1",
     "^@/(.*)$": "<rootDir>/$1",
+    "^components/(.*)$": "<rootDir>/components/$1",
+    "^store/(.*)$": "<rootDir>/store/$1",
+    "^hooks/(.*)$": "<rootDir>/hooks/$1",
+    "^utils/(.*)$": "<rootDir>/utils/$1",
+    "^types/(.*)$": "<rootDir>/types/$1",
+    "^api/(.*)$": "<rootDir>/api/$1",
+    "^helpers/(.*)$": "<rootDir>/helpers/$1",
+    "^constants/(.*)$": "<rootDir>/constants/$1",
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
       "<rootDir>/__mocks__/fileMock.js",
