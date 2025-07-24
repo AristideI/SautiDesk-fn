@@ -15,6 +15,7 @@ export default [
     route("contact", "routes/general/contactPage.tsx"),
     route("pricing", "routes/general/pricingPage.tsx"),
     route("resources", "routes/general/resources.tsx"),
+    route("health", "routes/general/health.tsx"),
   ]),
 
   layout("../components/layouts/mainLayout.tsx", [
