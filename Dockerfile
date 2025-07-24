@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps --only=production
+RUN npm ci --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -17,7 +17,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the application
+# Generate TypeScript types and build the application
+RUN npm run typecheck
 RUN npm run build
 
 # Production image, copy all the files and run the app
@@ -35,8 +36,9 @@ COPY --from=builder /app/build ./build
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 
-# Copy only production dependencies
-COPY --from=deps /app/node_modules ./node_modules
+# Install only production dependencies for the final image
+COPY package.json package-lock.json* ./
+RUN npm ci --legacy-peer-deps --only=production
 
 # Change ownership of the app directory
 RUN chown -R nextjs:nodejs /app
