@@ -1,6 +1,8 @@
 import { API, authHeaders } from "api";
 import strapi from "./strapi";
 import type { ITicket, ITicketCreate, ITicketUpdate } from "types/ticket.types";
+import type { IUser } from "types/user.type";
+import { ActivityType } from "types/activity.type";
 
 export const TicketHandler = {
   async findAll() {
@@ -12,6 +14,7 @@ export const TicketHandler = {
           "populate[assignedTo][populate]": "*",
           "populate[ownedBy][populate]": "*",
           "populate[organisation][populate]": "*",
+          "populate[similarTickets][populate]": "*",
         },
       }
     );
@@ -32,6 +35,7 @@ export const TicketHandler = {
           "populate[assignedTo][populate]": "*",
           "populate[ownedBy][populate]": "*",
           "populate[organisation][populate]": "*",
+          "populate[similarTickets][populate]": "*",
         },
       }
     );
@@ -52,6 +56,7 @@ export const TicketHandler = {
           "populate[assignedTo][populate]": "*",
           "populate[ownedBy][populate]": "*",
           "populate[organisation][populate]": "*",
+          "populate[similarTickets][populate]": "*",
         },
       }
     );
@@ -67,12 +72,13 @@ export const TicketHandler = {
         "populate[assignedTo][populate]": "*",
         "populate[ownedBy][populate]": "*",
         "populate[organisation][populate]": "*",
+        "populate[similarTickets][populate]": "*",
       },
     });
     return data.data;
   },
 
-  async create(ticketData: ITicketCreate, organisationId: string) {
+  async create(ticketData: ITicketCreate, organisationId: string, user: IUser) {
     const { data } = await strapi.post<{
       data: ITicket;
     }>(
@@ -82,12 +88,12 @@ export const TicketHandler = {
         headers: authHeaders(),
       }
     );
-    // await API.smsHandler.sendSMS(
-    //   "+250785478021",
-    //   `Ticket created: ${
-    //     data.data.title
-    //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
-    // );
+    await API.smsHandler.sendSMS(
+      "+250785478021",
+      `Ticket created: ${
+        data.data.title
+      } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
+    );
     await API.smsHandler.sendMail(
       "i.aristide08@gmail.com",
       "Ticket created",
@@ -95,6 +101,35 @@ export const TicketHandler = {
         data.data.title
       } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
     );
+
+    API.activityHandler.create({
+      content: `
+      ${user.username} created a ticket with title ${data.data.title} with ID ${data.data.documentId}
+      `,
+      user: user.documentId,
+      ticket: data.data.documentId,
+      type: ActivityType.TICKET,
+    });
+
+    ticketData.similarTickets?.forEach(async (ticket) => {
+      API.activityHandler.create({
+        content: `
+        ${user.username} linked this ticket to ${data.data.title} with ID ${data.data.documentId}
+        `,
+        user: user.documentId,
+        ticket: ticket,
+        type: ActivityType.TICKET,
+      });
+    });
+
+    API.activityHandler.create({
+      content: `
+      ${user.username} assigned this ticket to ${data.data.assignedTo?.username} with ID ${data.data.assignedTo?.documentId}
+      `,
+      user: ticketData.assignedTo || "",
+      ticket: data.data.documentId,
+      type: ActivityType.TICKET,
+    });
 
     return data.data;
   },

@@ -31,6 +31,7 @@ export interface ITicketCreate {
   organisation: string;
   tags?: string;
   source: TicketSource;
+  similarTickets?: string[]; // Array of ticket documentIds
 }
 
 export interface ITicketUpdate {
@@ -40,6 +41,7 @@ export interface ITicketUpdate {
   priority?: TicketPriority;
   assignedTo?: string;
   tags?: string;
+  similarTickets?: string[]; // Array of ticket documentIds
 }
 
 export enum TicketState {

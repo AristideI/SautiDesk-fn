@@ -27,7 +27,7 @@ export default function useOrganisations(ownerId?: string) {
       );
       setOrganisations(organisations);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching organisations:", error);
       toast.error("Failed to fetch organisations, Please refresh the page!");
     } finally {
       setLoading(false);

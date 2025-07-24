@@ -21,7 +21,11 @@ export const OpenAIHandler = {
     return transcriptionData.text;
   },
 
-  async getTicketData(transcription: string, agents: string[]) {
+  async getTicketData(
+    transcription: string,
+    agents: string[],
+    ticketsList: string[]
+  ) {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -33,7 +37,7 @@ export const OpenAIHandler = {
         messages: [
           {
             role: "system",
-            content: `You are a helpful assistant that creates ticket information from audio transcriptions. Extract a title, description, and suggest a priority (HIGH, MEDIUM, or LOW), and type (TICKET, INCIDENT, REQUEST, PROBLEM, SUGGESTION, OTHER), and assignedTo (this is the from the agents list of the agent that should be assigned to the ticket), based on the content. Format the response as JSON with fields: title, description, priority, type, assignedTo. here are agents description with their ID: ${agents}`,
+            content: `You are a helpful assistant that creates ticket information from audio transcriptions. Extract a title, description, and suggest a priority (HIGH, MEDIUM, or LOW), and type (TICKET, INCIDENT, REQUEST, PROBLEM, SUGGESTION, OTHER), and assignedTo (this is the from the agents list of the agent that should be assigned to the ticket), based on the content. Format the response as JSON with fields: title, description, priority, type, assignedTo, similarTickets. here are agents description with their ID: ${agents} and here are tickets list with their ID: ${ticketsList} similar can be an array of ticket IDs`,
           },
           {
             role: "user",

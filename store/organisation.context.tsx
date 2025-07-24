@@ -60,8 +60,8 @@ export default function OrganisationContextProvider({
       organisationId!
     );
     setOrganisation(organisation);
-    setTickets(organisation.tickets || []);
-    setAgents(organisation.agents || []);
+    setTickets(organisation.tickets || null);
+    setAgents(organisation.agents || null);
   }
 
   const values = useMemo(() => {

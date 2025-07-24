@@ -45,7 +45,6 @@ export default function KnowledgeBaseContextProvider({
 
   const fetchKnowledgeBases = async () => {
     if (!user?.id) {
-      console.log("User ID not available, skipping knowledge base fetch");
       return;
     }
 

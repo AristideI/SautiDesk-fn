@@ -1,15 +1,13 @@
 import type { IUser } from "./user.type";
 import type { ITicket } from "./ticket.types";
 import type { IKnowledgeBase } from "./knowledgeBase.type";
-import type { IForum } from "./forum.type";
 
 export interface IActivity {
-  id: number;
+  id: string;
   documentId: string;
   user: IUser;
   ticket?: ITicket;
   knowledgeBase?: IKnowledgeBase;
-  forum?: IForum;
   type: ActivityType;
   content: string;
   createdAt: string;
@@ -17,12 +15,11 @@ export interface IActivity {
 }
 
 export interface ICreateActivity {
-  user: number;
-  ticket?: number;
-  knowledgeBase?: number;
-  forum?: number;
-  type: ActivityType;
   content: string;
+  user: string;
+  ticket?: string;
+  knowledgeBase?: string;
+  type: ActivityType;
 }
 
 export enum ActivityType {

@@ -28,6 +28,7 @@ type FormData = {
   state: TicketState;
   type: TicketType;
   assignedTo: string;
+  similarTickets: string[];
 };
 
 export default function CreateTicketModal({
@@ -38,12 +39,15 @@ export default function CreateTicketModal({
   onOpenModal,
 }: CreateTicketModalProps) {
   const { user } = useAuthContext();
-  const { organisation, agents, loadOrganisation } = useOrganisationContext();
+  const { organisation, agents, loadOrganisation, tickets } =
+    useOrganisationContext();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAssignedToOpen, setIsAssignedToOpen] = useState(false);
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const [isSimilarTicketsOpen, setIsSimilarTicketsOpen] = useState(false);
+
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -51,6 +55,7 @@ export default function CreateTicketModal({
     state: TicketState.OPEN,
     type: TicketType.TICKET,
     assignedTo: "",
+    similarTickets: [],
   });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +93,18 @@ export default function CreateTicketModal({
     setIsStatusOpen(false);
   }
 
+  function handleSimilarTicketToggle(ticketId: string) {
+    setFormData((prev) => {
+      const newSimilarTickets = prev.similarTickets.includes(ticketId)
+        ? prev.similarTickets.filter((id) => id !== ticketId)
+        : [...prev.similarTickets, ticketId];
+      return {
+        ...prev,
+        similarTickets: newSimilarTickets,
+      };
+    });
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -112,9 +129,13 @@ export default function CreateTicketModal({
         ownedBy: user.documentId!,
         organisation: organisation.documentId,
         source: TicketSource.MANUAL,
+        similarTickets:
+          formData.similarTickets.length > 0
+            ? formData.similarTickets
+            : undefined,
       };
 
-      await API.ticketHandler.create(ticketData, organisation.documentId);
+      await API.ticketHandler.create(ticketData, organisation.documentId, user);
       loadOrganisation();
       toast.success("Ticket created successfully!");
 
@@ -126,6 +147,7 @@ export default function CreateTicketModal({
         state: TicketState.OPEN,
         type: TicketType.TICKET,
         assignedTo: "",
+        similarTickets: [],
       });
 
       onCloseModal();
@@ -156,9 +178,16 @@ export default function CreateTicketModal({
               `ID: ${agent.documentId}, About ${agent.agent?.about}, expertise: ${agent.agent?.qualification} ${agent.agent?.areaOfExpertise}`
           )
           .filter(Boolean) as string[]) || [];
+
+      const ticketsList =
+        (tickets
+          ?.map((ticket) => `ID: ${ticket.documentId}, Title: ${ticket.title}`)
+          .filter(Boolean) as string[]) || [];
+
       const ticketData = await API.openAIHandler.getTicketData(
         transcription,
-        agentsList
+        agentsList,
+        ticketsList
       );
 
       // Update form data with AI-generated content
@@ -169,6 +198,7 @@ export default function CreateTicketModal({
         state: TicketState.OPEN,
         type: ticketData.type,
         assignedTo: ticketData.assignedTo || "",
+        similarTickets: ticketData.similarTickets || [],
       });
 
       // Close AI modal and open regular modal
@@ -198,6 +228,7 @@ export default function CreateTicketModal({
       state: TicketState.OPEN,
       type: TicketType.TICKET,
       assignedTo: "",
+      similarTickets: [],
     });
   };
 
@@ -523,6 +554,99 @@ export default function CreateTicketModal({
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div>
+                <h2 className="block text-sm font-medium mb-2">
+                  Similar Tickets
+                </h2>
+                <div className="relative">
+                  <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsSimilarTicketsOpen((prev) => !prev);
+                    }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">
+                        {formData.similarTickets.length > 0
+                          ? `${formData.similarTickets.length} ticket(s) selected`
+                          : "Select similar tickets"}
+                      </span>
+                      <ChevronDown size={16} className="text-white/60" />
+                    </div>
+                  </div>
+
+                  {isSimilarTicketsOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-black border border-white/20 rounded-lg z-50 max-h-48 overflow-y-auto">
+                      {tickets && tickets.length > 0 ? (
+                        tickets.map((ticket) => (
+                          <button
+                            key={ticket.documentId}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleSimilarTicketToggle(ticket.documentId);
+                            }}
+                            className={`w-full p-2 text-left hover:bg-white/10 flex items-center gap-2 ${
+                              formData.similarTickets.includes(
+                                ticket.documentId
+                              )
+                                ? "bg-green-500/20 text-green-400"
+                                : ""
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.similarTickets.includes(
+                                ticket.documentId
+                              )}
+                              readOnly
+                              className="w-4 h-4"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm truncate">{ticket.title}</p>
+                              <p className="text-xs text-white/60 truncate">
+                                {ticket.documentId}
+                              </p>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-white/60">
+                          No tickets available
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected Similar Tickets Display */}
+                {formData.similarTickets.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {formData.similarTickets.map((ticketId) => {
+                      const ticket = tickets?.find(
+                        (t) => t.documentId === ticketId
+                      );
+                      return ticket ? (
+                        <div
+                          key={ticketId}
+                          className="flex items-center gap-2 bg-green-500/20 text-green-400 rounded px-2 py-1 text-sm"
+                        >
+                          <span>{ticket.title}</span>
+                          <button
+                            onClick={() => handleSimilarTicketToggle(ticketId)}
+                            className="text-green-400 hover:text-green-300"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                )}
               </div>
             </div>
 

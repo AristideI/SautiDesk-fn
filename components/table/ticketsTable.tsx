@@ -4,6 +4,8 @@ import { ticketTypeIcons } from "constants/typeIcons";
 import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router";
 import { TicketLoadingSkeleton } from "components/utils/tableSkeletons";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 interface TicketsTableProps {
   tickets: ITicket[];
@@ -118,7 +120,7 @@ export default function TicketsTable({
                         : "Unassigned"}
                     </td>
                     <td className="py-3 px-4">
-                      {dayjs(ticket.createdAt).format("DD/MM/YYYY, HH:mm")}
+                      {dayjs(ticket.createdAt).fromNow()}
                     </td>
                   </tr>
                 );

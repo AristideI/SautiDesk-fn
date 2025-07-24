@@ -11,6 +11,7 @@ import { NotificationHandler } from "./notification.handler";
 import { KnowledgeBaseHandler } from "./knowledgeBase.handler";
 import { astraHandler } from "./astra.handler";
 import { OTPHandler } from "./otp.handler";
+import { ActivityHandler } from "./activity.handler";
 
 export const authHeaders = () => ({
   Authorization: `Bearer ${getAuthToken()}`,
@@ -29,4 +30,5 @@ export const API = {
   knowledgeBaseHandler: KnowledgeBaseHandler,
   astraHandler: astraHandler,
   otpHandler: OTPHandler,
+  activityHandler: ActivityHandler,
 };

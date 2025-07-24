@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import Button from "components/utils/button";
 import {
@@ -19,6 +19,8 @@ import {
   Activity,
   TrendingUp,
   GitBranch,
+  Edit,
+  ChevronDown,
 } from "lucide-react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
@@ -55,10 +57,40 @@ export default function ViewTicketPage() {
   const [newNote, setNewNote] = useState("");
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [showEditSimilarTicketsModal, setShowEditSimilarTicketsModal] =
+    useState(false);
+  const [selectedSimilarTickets, setSelectedSimilarTickets] = useState<
+    string[]
+  >([]);
+  const [isSimilarTicketsDropdownOpen, setIsSimilarTicketsDropdownOpen] =
+    useState(false);
 
   const { pinnedStore, pinTicket, unpinTicket } = usePinsContext();
+  const similarTicketsRef = useRef<HTMLDivElement>(null);
 
-  console.log(ticket?.activities);
+  // Initialize selected similar tickets when modal opens
+  useEffect(() => {
+    if (showEditSimilarTicketsModal && ticket?.similarTickets) {
+      setSelectedSimilarTickets(ticket.similarTickets.map((t) => t.documentId));
+    }
+  }, [showEditSimilarTicketsModal, ticket?.similarTickets]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        similarTicketsRef.current &&
+        !similarTicketsRef.current.contains(event.target as Node)
+      ) {
+        setIsSimilarTicketsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handlePinTicket = async () => {
     if (!ticket) return;
@@ -121,10 +153,9 @@ export default function ViewTicketPage() {
     if (!ticket) return;
 
     try {
-      await API.ticketHandler.updateState(
-        ticket.documentId,
-        TicketState.CLOSED
-      );
+      await API.ticketHandler.update(ticket.documentId, {
+        state: TicketState.CLOSED,
+      });
       toast.success("Ticket closed successfully");
       navigate(-1);
     } catch (error) {
@@ -169,6 +200,31 @@ export default function ViewTicketPage() {
     setNewNote("");
     setShowNoteModal(false);
     toast.success("Note added");
+  };
+
+  const handleSimilarTicketToggle = (ticketId: string) => {
+    setSelectedSimilarTickets((prev) =>
+      prev.includes(ticketId)
+        ? prev.filter((id) => id !== ticketId)
+        : [...prev, ticketId]
+    );
+  };
+
+  const handleSaveSimilarTickets = async () => {
+    if (!ticket) return;
+
+    try {
+      await API.ticketHandler.update(ticket.documentId, {
+        similarTickets: selectedSimilarTickets,
+      });
+
+      // Refresh the page to show updated data
+      window.location.reload();
+      toast.success("Similar tickets updated successfully!");
+    } catch (error) {
+      console.error("Error updating similar tickets:", error);
+      toast.error("Failed to update similar tickets");
+    }
   };
 
   if (loading) {
@@ -597,9 +653,18 @@ export default function ViewTicketPage() {
 
               {/* Similar Tickets */}
               <div className="bg-white/5 rounded-lg p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <GitBranch size={20} className="text-green" />
-                  <h3 className="text-lg font-semibold">Similar Tickets</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <GitBranch size={20} className="text-green" />
+                    <h3 className="text-lg font-semibold">Similar Tickets</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowEditSimilarTicketsModal(true)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    title="Edit similar tickets"
+                  >
+                    <Edit size={16} />
+                  </button>
                 </div>
                 <div className="space-y-4">
                   {ticket?.similarTickets &&
@@ -741,6 +806,125 @@ export default function ViewTicketPage() {
             <Button
               buttonText="Cancel"
               onPress={() => setShowNoteModal(false)}
+              variant="secondary"
+              className="flex-1"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Similar Tickets Modal */}
+      <div
+        className={`fixed top-0 right-0 h-full w-1/3 bg-black border-l border-white/20 transform transition-transform duration-300 ease-in-out ${
+          showEditSimilarTicketsModal ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Edit Similar Tickets</h2>
+            <button
+              onClick={() => setShowEditSimilarTicketsModal(false)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col">
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Select Similar Tickets</label>
+              <div className="relative">
+                <div
+                  ref={similarTicketsRef}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsSimilarTicketsDropdownOpen((prev) => !prev);
+                  }}
+                  className="w-full px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 cursor-pointer"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">
+                      {selectedSimilarTickets.length > 0
+                        ? `${selectedSimilarTickets.length} ticket(s) selected`
+                        : "Select similar tickets"}
+                    </span>
+                    <ChevronDown size={16} className="text-white/60" />
+                  </div>
+                </div>
+
+                {isSimilarTicketsDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-black border border-white/20 rounded-lg z-10 max-h-48 overflow-y-auto">
+                    {tickets?.map((ticket) => (
+                      <button
+                        key={ticket.documentId}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleSimilarTicketToggle(ticket.documentId);
+                        }}
+                        className={`w-full p-2 text-left hover:bg-white/10 flex items-center gap-2 ${
+                          selectedSimilarTickets.includes(ticket.documentId)
+                            ? "bg-green-500/20 text-green-400"
+                            : ""
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedSimilarTickets.includes(
+                            ticket.documentId
+                          )}
+                          readOnly
+                          className="w-4 h-4"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm truncate">{ticket.title}</p>
+                          <p className="text-xs text-white/60 truncate">
+                            {ticket.documentId}
+                          </p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Selected Similar Tickets Display */}
+              {selectedSimilarTickets.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {selectedSimilarTickets.map((ticketId) => {
+                    const ticket = tickets?.find(
+                      (t) => t.documentId === ticketId
+                    );
+                    return ticket ? (
+                      <div
+                        key={ticketId}
+                        className="flex items-center gap-2 bg-green-500/20 text-green-400 rounded px-2 py-1 text-sm"
+                      >
+                        <span>{ticket.title}</span>
+                        <button
+                          onClick={() => handleSimilarTicketToggle(ticketId)}
+                          className="text-green-400 hover:text-green-300"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button
+              buttonText="Save Changes"
+              onPress={handleSaveSimilarTickets}
+              className="flex-1"
+            />
+            <Button
+              buttonText="Cancel"
+              onPress={() => setShowEditSimilarTicketsModal(false)}
               variant="secondary"
               className="flex-1"
             />
