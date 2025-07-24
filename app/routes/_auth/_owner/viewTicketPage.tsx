@@ -121,10 +121,9 @@ export default function ViewTicketPage() {
     if (!ticket) return;
 
     try {
-      await API.ticketHandler.updateState(
-        ticket.documentId,
-        TicketState.CLOSED
-      );
+      await API.ticketHandler.update(ticket.documentId, {
+        state: TicketState.CLOSED,
+      });
       toast.success("Ticket closed successfully");
       navigate(-1);
     } catch (error) {
