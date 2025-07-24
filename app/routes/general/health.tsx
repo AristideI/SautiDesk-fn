@@ -1,6 +1,6 @@
-import type { Route } from "../+types/health";
+// import type { Route } from "../+types/health";
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
     { title: "Health Check" },
     { name: "description", content: "Health check endpoint" },
