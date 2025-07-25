@@ -109,9 +109,13 @@ export const CommentHandler = {
   async create(commentData: ICommentCreate) {
     const { data } = await strapi.post<{
       data: IComment;
-    }>(`/comments`, commentData, {
-      headers: authHeaders(),
-    });
+    }>(
+      `/comments`,
+      { data: commentData },
+      {
+        headers: authHeaders(),
+      }
+    );
     return data.data;
   },
 

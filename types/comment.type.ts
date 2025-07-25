@@ -20,11 +20,11 @@ export interface IComment {
 
 export interface ICommentCreate {
   content: string;
-  author: string;
+  author: number;
   ticket?: string;
   knowledgeBase?: string;
   forum?: string;
-  attachments?: string[];
+  attachments?: number[];
 }
 
 export interface ICommentUpdate {
