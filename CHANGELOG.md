@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.9.0...v0.10.0) (2025-07-25)
+
 ## [0.9.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.3...v0.9.0) (2025-07-25)
 
 
