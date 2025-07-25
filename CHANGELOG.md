@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.3...v0.9.0) (2025-07-25)
+
+
+### Features
+
+* commenting ([c4d39f9](https://github.com/AristideI/SautiDesk-fn/commit/c4d39f9eab26ac55966a813660636e8edb2d733c))
+* create activity logs ([ae83c58](https://github.com/AristideI/SautiDesk-fn/commit/ae83c58b7bbabdb152441463f9e5d3236ef46b4c))
+* test whole platform ([ad6e7bd](https://github.com/AristideI/SautiDesk-fn/commit/ad6e7bd4294650ba05a306755699366a27651e10))
+
 ### [0.8.3](https://github.com/AristideI/SautiDesk-fn/compare/v0.8.2...v0.8.3) (2025-07-06)
 
 
