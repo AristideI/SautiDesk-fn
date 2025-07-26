@@ -19,15 +19,9 @@ import { usePinsContext } from "store/pins.context";
 import { TicketLoadingSkeleton } from "components/utils/orgSkeleton";
 import TicketModals from "components/modals/ticketModals";
 import ViewTicketTabs from "components/utils/viewTicketTabs";
+import type { INote, INoteCreate } from "types/note.type";
 
 type TabType = "tasks" | "conversation" | "notes" | "insights";
-
-interface Note {
-  id: string;
-  content: string;
-  author: string;
-  createdAt: Date;
-}
 
 export default function ViewTicketPage() {
   const { ticketId } = useParams();
@@ -38,8 +32,11 @@ export default function ViewTicketPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>("tasks");
   const [comments, setComments] = useState<IComment[]>([]);
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [notes, setNotes] = useState<INote[]>([]);
   const [newNote, setNewNote] = useState("");
+  const [noteType, setNoteType] = useState<"INTERNAL" | "PRIVATE" | "SYSTEM">(
+    "INTERNAL"
+  );
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [showEditSimilarTicketsModal, setShowEditSimilarTicketsModal] =
@@ -59,6 +56,12 @@ export default function ViewTicketPage() {
       setSelectedSimilarTickets(ticket.similarTickets.map((t) => t.documentId));
     }
   }, [showEditSimilarTicketsModal, ticket?.similarTickets]);
+
+  useEffect(() => {
+    if (ticket?.notes) {
+      setNotes(ticket.notes);
+    }
+  }, [ticket]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -149,20 +152,30 @@ export default function ViewTicketPage() {
     }
   };
 
-  const handleAddNote = () => {
-    if (!newNote.trim() || !user) return;
+  const handleAddNote = async () => {
+    if (!newNote.trim() || !user || !ticket) return;
 
-    const note: Note = {
-      id: Date.now().toString(),
-      content: newNote,
-      author: user.documentId,
-      createdAt: new Date(),
-    };
+    try {
+      const noteData: INoteCreate = {
+        content: newNote.trim(),
+        author: user.id.toString(),
+        ticket: ticket.id,
+        type: noteType,
+      };
 
-    setNotes((prev) => [...prev, note]);
-    setNewNote("");
-    setShowNoteModal(false);
-    toast.success("Note added");
+      const resultNote = await API.noteHandler.createNote(noteData);
+
+      // Reset form
+      setNewNote("");
+      setNoteType("INTERNAL");
+      setShowNoteModal(false);
+      toast.success("Note added successfully");
+
+      setNotes((prev) => [...prev, resultNote.data]);
+    } catch (error) {
+      console.error("Error adding note:", error);
+      toast.error("Failed to add note");
+    }
   };
 
   const handleSimilarTicketToggle = (ticketId: string) => {
@@ -314,6 +327,8 @@ export default function ViewTicketPage() {
         setShowEditSimilarTicketsModal={setShowEditSimilarTicketsModal}
         newNote={newNote}
         setNewNote={setNewNote}
+        noteType={noteType}
+        setNoteType={setNoteType}
         handleAddNote={handleAddNote}
         isSimilarTicketsDropdownOpen={isSimilarTicketsDropdownOpen}
         setIsSimilarTicketsDropdownOpen={setIsSimilarTicketsDropdownOpen}

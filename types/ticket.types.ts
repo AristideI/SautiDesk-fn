@@ -1,4 +1,5 @@
 import type { IActivity } from "./activity.type";
+import type { INote } from "./note.type";
 import type { IOrganisation } from "./organisation.type";
 import type { IUser } from "./user.type";
 
@@ -19,6 +20,7 @@ export interface ITicket {
   source: TicketSource;
   createdAt: Date;
   updatedAt: Date;
+  notes?: INote[];
 }
 
 export interface ITicketCreate {

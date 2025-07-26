@@ -50,6 +50,7 @@ export const OrganisationHandler = {
         "populate[agents][populate][agent][populate]": "*",
         "populate[tickets][populate][similarTickets][populate]": "*",
         "populate[tickets][populate][activities][populate]": "*",
+        "populate[tickets][populate][notes][populate]": "*",
       },
     });
     return data.data;

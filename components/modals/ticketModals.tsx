@@ -9,6 +9,8 @@ interface TicketModalsProps {
   setShowEditSimilarTicketsModal: (show: boolean) => void;
   newNote: string;
   setNewNote: (note: string) => void;
+  noteType: "INTERNAL" | "PRIVATE" | "SYSTEM";
+  setNoteType: (type: "INTERNAL" | "PRIVATE" | "SYSTEM") => void;
   handleAddNote: () => void;
   isSimilarTicketsDropdownOpen: boolean;
   setIsSimilarTicketsDropdownOpen: (open: boolean) => void;
@@ -25,6 +27,8 @@ export default function TicketModals({
   setShowEditSimilarTicketsModal,
   newNote,
   setNewNote,
+  noteType,
+  setNoteType,
   handleAddNote,
   isSimilarTicketsDropdownOpen,
   setIsSimilarTicketsDropdownOpen,
@@ -52,13 +56,73 @@ export default function TicketModals({
             </button>
           </div>
 
-          <div className="flex-1">
-            <textarea
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              placeholder="Enter your note..."
-              className="w-full h-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 resize-none"
-            />
+          <div className="flex-1 flex flex-col space-y-4">
+            {/* Note Type Selection */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Note Type
+              </label>
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setNoteType("INTERNAL");
+                  }}
+                  className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
+                    noteType === "INTERNAL"
+                      ? "border border-blue-500"
+                      : ""
+                  }`}
+                >
+                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                  <p className="text-sm text-white/60">Internal</p>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setNoteType("PRIVATE");
+                  }}
+                  className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
+                    noteType === "PRIVATE"
+                      ? "border border-purple-500"
+                      : ""
+                  }`}
+                >
+                  <div className="w-2 h-2 bg-purple-500 rounded-full" />
+                  <p className="text-sm text-white/60">Private</p>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setNoteType("SYSTEM");
+                  }}
+                  className={`rounded-lg flex items-center justify-center py-2 w-full gap-4 ${
+                    noteType === "SYSTEM"
+                      ? "border border-gray-500"
+                      : ""
+                  }`}
+                >
+                  <div className="w-2 h-2 bg-gray-500 rounded-full" />
+                  <p className="text-sm text-white/60">System</p>
+                </button>
+              </div>
+            </div>
+
+            {/* Note Content */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">
+                Note Content
+              </label>
+              <textarea
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                placeholder="Enter your note..."
+                className="w-full h-full px-4 py-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 resize-none"
+              />
+            </div>
           </div>
 
           <div className="flex gap-3 mt-6">

@@ -23,22 +23,16 @@ import { getPriorityColor, getStateColor } from "utils/getColors";
 import { useState } from "react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
+import type { INote } from "types/note.type";
 
 type TabType = "tasks" | "conversation" | "notes" | "insights";
-
-interface Note {
-  id: string;
-  content: string;
-  author: string;
-  createdAt: Date;
-}
 
 interface ViewTicketTabsProps {
   activeTab: TabType;
   ticket: ITicket;
   organisation?: IOrganisation;
   comments: IComment[];
-  notes: Note[];
+  notes: INote[];
   isLoadingComments: boolean;
   showNoteModal: boolean;
   showEditSimilarTicketsModal: boolean;
@@ -289,18 +283,47 @@ export default function ViewTicketTabs({
                             {dayjs(comment.createdAt).format("MMM DD, HH:mm")}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {comment.attachments &&
-                            comment.attachments.length > 0 && (
-                              <div className="flex items-center gap-1 text-white/60 text-xs">
-                                <Paperclip size={12} />
-                                <span>{comment.attachments.length}</span>
-                              </div>
-                            )}
-                        </div>
                       </div>
                       <div className="bg-white/5 rounded-lg p-3">
                         <p className="text-white/80">{comment.content}</p>
+
+                        {/* Display attachments */}
+                        {comment.attachments &&
+                          comment.attachments.length > 0 && (
+                            <div className="mt-3 space-y-2">
+                              <div className="flex items-center gap-1 text-white/60 text-xs mb-2">
+                                <Paperclip size={12} />
+                                <span>
+                                  Attachments ({comment.attachments.length})
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                {comment.attachments.map((attachment) => (
+                                  <div
+                                    key={attachment.id}
+                                    className="relative group cursor-pointer"
+                                    onClick={() =>
+                                      window.open(attachment.url, "_blank")
+                                    }
+                                  >
+                                    <img
+                                      src={attachment.url}
+                                      alt={
+                                        attachment.alternativeText ||
+                                        attachment.name
+                                      }
+                                      className="w-full h-24 object-cover rounded-lg border border-white/10 hover:border-white/30 transition-colors"
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+                                      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs bg-black/50 px-2 py-1 rounded">
+                                        Click to view
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -383,9 +406,26 @@ export default function ViewTicketTabs({
                 notes.map((note) => (
                   <div key={note.id} className="bg-white/5 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-white/80">
-                        {note.author}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-white/80">
+                          {note.author?.username || "Unknown User"}
+                        </span>
+                        {note.type && (
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs ${
+                              note.type === "INTERNAL"
+                                ? "bg-blue-500/20 text-blue-400"
+                                : note.type === "PRIVATE"
+                                ? "bg-purple-500/20 text-purple-400"
+                                : note.type === "SYSTEM"
+                                ? "bg-gray-500/20 text-gray-400"
+                                : "bg-gray-500/20 text-gray-400"
+                            }`}
+                          >
+                            {note.type}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs text-white/40">
                         {dayjs(note.createdAt).format("MMM DD, HH:mm")}
                       </span>
