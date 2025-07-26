@@ -137,9 +137,13 @@ export const TicketHandler = {
   async update(id: string, ticketData: ITicketUpdate) {
     const { data } = await strapi.put<{
       data: ITicket;
-    }>(`/tickets/${id}`, ticketData, {
-      headers: authHeaders(),
-    });
+    }>(
+      `/tickets/${id}`,
+      { data: ticketData },
+      {
+        headers: authHeaders(),
+      }
+    );
     return data.data;
   },
 

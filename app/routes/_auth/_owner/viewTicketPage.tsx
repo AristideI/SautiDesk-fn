@@ -8,6 +8,8 @@ import {
   CheckSquare,
   Pin,
   TrendingUp,
+  X,
+  Loader2,
 } from "lucide-react";
 import { useAuthContext } from "store/auth.context";
 import { API } from "api";
@@ -46,6 +48,11 @@ export default function ViewTicketPage() {
   >([]);
   const [isSimilarTicketsDropdownOpen, setIsSimilarTicketsDropdownOpen] =
     useState(false);
+  const [showStateUpdateModal, setShowStateUpdateModal] = useState(false);
+  const [selectedState, setSelectedState] = useState<TicketState>(
+    TicketState.CLOSED
+  );
+  const [isUpdatingState, setIsUpdatingState] = useState(false);
 
   const { pinnedStore, pinTicket, unpinTicket } = usePinsContext();
   const similarTicketsRef = useRef<HTMLDivElement>(null);
@@ -140,15 +147,19 @@ export default function ViewTicketPage() {
   const handleCloseTicket = async () => {
     if (!ticket) return;
 
+    setIsUpdatingState(true);
     try {
       await API.ticketHandler.update(ticket.documentId, {
-        state: TicketState.CLOSED,
+        state: selectedState,
       });
-      toast.success("Ticket closed successfully");
+      toast.success(`Ticket updated to ${selectedState} successfully`);
+      setShowStateUpdateModal(false);
       navigate(-1);
     } catch (error) {
-      console.error("Error closing ticket:", error);
-      toast.error("Failed to close ticket");
+      console.error("Error updating ticket:", error);
+      toast.error("Failed to update ticket");
+    } finally {
+      setIsUpdatingState(false);
     }
   };
 
@@ -248,8 +259,8 @@ export default function ViewTicketPage() {
               <Pin size={20} />
             </button>
             <Button
-              buttonText="Submit as Closed"
-              onPress={handleCloseTicket}
+              buttonText="Update Ticket State"
+              onPress={() => setShowStateUpdateModal(true)}
               variant="secondary"
             />
           </div>
@@ -319,6 +330,65 @@ export default function ViewTicketPage() {
         setShowNoteModal={setShowNoteModal}
         setShowEditSimilarTicketsModal={setShowEditSimilarTicketsModal}
       />
+
+      {/* State Update Modal */}
+      {showStateUpdateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 border border-white/20 rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Update Ticket State</h3>
+              <button
+                onClick={() => setShowStateUpdateModal(false)}
+                className="text-white/60 hover:text-white"
+                disabled={isUpdatingState}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Select New State
+              </label>
+              <select
+                value={selectedState}
+                onChange={(e) =>
+                  setSelectedState(e.target.value as TicketState)
+                }
+                className="w-full bg-gray-800 border border-white/20 rounded px-3 py-2 text-white focus:outline-none focus:border-green"
+                disabled={isUpdatingState}
+              >
+                {Object.values(TicketState).map((state) => (
+                  <option key={state} value={state}>
+                    {state.replace("_", " ")}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                buttonText="Cancel"
+                onPress={() => setShowStateUpdateModal(false)}
+                variant="secondary"
+                className="flex-1"
+                disabled={isUpdatingState}
+              />
+              <Button
+                buttonText={isUpdatingState ? "Updating..." : "Update State"}
+                onPress={handleCloseTicket}
+                className="flex-1"
+                disabled={isUpdatingState}
+                icon={
+                  isUpdatingState ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : undefined
+                }
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <TicketModals
         showNoteModal={showNoteModal}
