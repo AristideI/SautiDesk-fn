@@ -3,6 +3,7 @@ import strapi from "./strapi";
 import type { ITicket, ITicketCreate, ITicketUpdate } from "types/ticket.types";
 import type { IUser } from "types/user.type";
 import { ActivityType } from "types/activity.type";
+import { NotificationType } from "types/notification.type";
 
 export const TicketHandler = {
   async findAll() {
@@ -129,6 +130,16 @@ export const TicketHandler = {
       user: ticketData.assignedTo || "",
       ticket: data.data.documentId,
       type: ActivityType.TICKET,
+    });
+
+    API.notificationHandler.create({
+      type: NotificationType.TICKET,
+      content: `
+      ${user.username} assigned this ticket to ${data.data.assignedTo?.username} with ID ${data.data.assignedTo?.documentId}
+      `,
+      ticket: data.data.documentId,
+      user: data.data.assignedTo?.documentId || "",
+      from: user.documentId,
     });
 
     return data.data;

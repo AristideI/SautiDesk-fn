@@ -1,5 +1,7 @@
+import type { IActivity } from "./activity.type";
 import type { IAgent } from "./agent.type";
 import type { IImage } from "./image.type";
+import type { INote } from "./note.type";
 import type { IOrganisation } from "./organisation.type";
 import type { ITicket } from "./ticket.types";
 
@@ -14,6 +16,8 @@ export interface IUser {
   phone?: string;
   organisation?: IOrganisation;
   tickets?: ITicket[];
+  activities?: IActivity[];
+  notes?: INote[];
   createdAt: string;
 }
 

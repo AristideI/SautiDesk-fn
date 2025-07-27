@@ -51,6 +51,8 @@ export const OrganisationHandler = {
         "populate[tickets][populate][similarTickets][populate]": "*",
         "populate[tickets][populate][activities][populate]": "*",
         "populate[tickets][populate][notes][populate]": "*",
+        "populate[agents][populate][activities][populate]": "*",
+        "populate[agents][populate][notes][populate]": "*",
       },
     });
     return data.data;
