@@ -33,6 +33,8 @@ export default function LoginPage() {
       const user = await login({ identifier: email, password });
       if (user?.userRole === "ADMIN") {
         navigate("/o/organisations");
+      } else if (user?.userRole === "AGENT") {
+        navigate("/a/tickets");
       } else {
         navigate("/");
       }

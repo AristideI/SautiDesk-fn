@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useConversations } from "hooks/useConversations";
 import { useOrganisationContext } from "store/organisation.context";
 import { usePinsContext } from "store/pins.context";
+import { useNavigate } from "react-router";
 import {
   Search,
   Send,
@@ -20,8 +21,10 @@ import dayjs from "dayjs";
 import type { ITicket } from "types/ticket.types";
 import { InboxLoadingSkeleton } from "components/utils/tableSkeletons";
 import type { IConversation } from "types/conversation.type";
+import { API } from "api";
 
 export default function OrgInboxPage() {
+  const navigate = useNavigate();
   const {
     conversations,
     selectedConversation,
@@ -30,20 +33,25 @@ export default function OrgInboxPage() {
     setSelectedConversation,
     sendMessage,
     searchConversations,
+    refreshConversations,
+    
   } = useConversations();
 
-  const { tickets } = useOrganisationContext();
+  const { tickets, organisation } = useOrganisationContext();
   const { pinnedStore, pinConversation, unpinConversation } = usePinsContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [isTicketDropdownOpen, setIsTicketDropdownOpen] = useState(false);
   const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
   const [isImageUploading, setIsImageUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [filteredConversations, setFilteredConversations] =
     useState(conversations);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const ticketDropdownRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Filter conversations based on search
   React.useEffect(() => {
@@ -71,46 +79,84 @@ export default function OrgInboxPage() {
     };
   }, []);
 
+  // Auto-scroll to bottom when conversation is selected or new messages are added
+  useEffect(() => {
+    if (messagesContainerRef.current && selectedConversation?.messages) {
+      const scrollToBottom = () => {
+        messagesContainerRef.current!.scrollTop =
+          messagesContainerRef.current!.scrollHeight;
+      };
+
+      // Use setTimeout to ensure DOM is updated
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [selectedConversation?.messages, selectedConversation?.documentId]);
+
   const handleSendMessage = async () => {
-    if (!selectedConversation || !messageInput.trim()) return;
-
-    try {
-      await sendMessage(
-        selectedConversation.documentId,
-        messageInput.trim(),
-        undefined, // imageId - would be set after image upload
-        selectedTicketIds.length > 0 ? selectedTicketIds : undefined
-      );
-
-      setMessageInput("");
-      setSelectedTicketIds([]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-    }
-  };
-
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!selectedConversation) {
-      toast.error("Please select a conversation first");
+    if (!selectedConversation || (!messageInput.trim() && !selectedImage))
       return;
-    }
 
     setIsImageUploading(true);
     try {
-      // TODO: Implement image upload to get imageId
-      // const imageId = await uploadImage(file);
-      // await sendMessage(selectedConversation.documentId, "", imageId);
-      toast.success("Image uploaded successfully");
+      let imageId: string | undefined;
+
+      // Upload image if one is selected
+      if (selectedImage) {
+        const uploadedImage = await API.userHandler.uploadImage(selectedImage);
+        imageId = uploadedImage.id.toString();
+      }
+
+      // Send message with content and/or image
+      await sendMessage(
+        selectedConversation.documentId,
+        messageInput.trim(),
+        imageId,
+        selectedTicketIds.length > 0 ? selectedTicketIds : undefined
+      );
+
+      // Reset form
+      setMessageInput("");
+      setSelectedTicketIds([]);
+      setSelectedImage(null);
+      setImagePreview(null);
+
+      // Reload conversations to get the latest data
+      await refreshConversations();
     } catch (error) {
-      console.error("Error uploading image:", error);
-      toast.error("Failed to upload image");
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
     } finally {
       setIsImageUploading(false);
+    }
+  };
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file");
+      return;
+    }
+
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setSelectedImage(file);
+    setImagePreview(previewUrl);
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
     }
   };
 
@@ -120,6 +166,14 @@ export default function OrgInboxPage() {
         ? prev.filter((id) => id !== ticketId)
         : [...prev, ticketId]
     );
+  };
+
+  const handleTicketClick = (ticketId: string) => {
+    if (organisation?.documentId) {
+      navigate(
+        `/o/organisations/${organisation.documentId}/tickets/${ticketId}`
+      );
+    }
   };
 
   const handlePinConversation = async (conversation: IConversation) => {
@@ -243,7 +297,15 @@ export default function OrgInboxPage() {
                     className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center cursor-pointer"
                     onClick={() => setSelectedConversation(conversation)}
                   >
-                    <User size={20} />
+                    {conversation.participants[1]?.profile?.url ? (
+                      <img
+                        src={conversation.participants[1].profile?.url}
+                        alt={conversation.participants[1].username}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User size={20} />
+                    )}
                   </div>
                   <div
                     className="flex-1 min-w-0 cursor-pointer"
@@ -319,7 +381,10 @@ export default function OrgInboxPage() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto p-4 space-y-4"
+            >
               {selectedConversation.messages?.length === 0 ? (
                 <div className="text-center py-8 text-white/60">
                   No messages yet. Start the conversation!
@@ -329,13 +394,13 @@ export default function OrgInboxPage() {
                   <div
                     key={message.documentId}
                     className={`flex gap-3 ${
-                      message.sender.documentId ===
+                      message.sender?.documentId ===
                       selectedConversation.participants[0]?.documentId
                         ? "justify-end"
                         : "justify-start"
                     }`}
                   >
-                    {message.sender.documentId !==
+                    {message.sender?.documentId !==
                       selectedConversation.participants[0]?.documentId && (
                       <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                         <User size={16} />
@@ -343,7 +408,7 @@ export default function OrgInboxPage() {
                     )}
                     <div
                       className={`max-w-[70%] p-3 rounded-lg ${
-                        message.sender.documentId ===
+                        message.sender?.documentId ===
                         selectedConversation.participants[0]?.documentId
                           ? "bg-green-500/20 text-white"
                           : "bg-white/10 text-white"
@@ -351,13 +416,15 @@ export default function OrgInboxPage() {
                     >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-sm">
-                          {message.sender.username}
+                          {message.sender?.username || "Unknown User"}
                         </span>
                         <span className="text-xs opacity-60">
                           {dayjs(message.createdAt).format("HH:mm")}
                         </span>
                       </div>
-                      <p className="text-sm">{message.content}</p>
+                      {message.content && (
+                        <p className="text-sm">{message.content}</p>
+                      )}
                       {message.image && (
                         <img
                           src={message.image.url}
@@ -370,10 +437,15 @@ export default function OrgInboxPage() {
                           {message.tickets.map((ticket: ITicket) => (
                             <div
                               key={ticket.documentId}
-                              className="flex items-center gap-2 text-xs bg-white/10 rounded px-2 py-1"
+                              className="flex items-center gap-2 text-xs bg-white/10 rounded px-2 py-1 cursor-pointer hover:bg-white/20 transition-colors"
+                              onClick={() =>
+                                handleTicketClick(ticket.documentId)
+                              }
                             >
                               <Ticket size={12} />
-                              <span>{ticket.title}</span>
+                              <span className="hover:text-green-400 transition-colors">
+                                {ticket.title}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -400,7 +472,26 @@ export default function OrgInboxPage() {
                     placeholder="Type your message..."
                     className="w-full p-3 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50 resize-none"
                     rows={3}
+                    disabled={isImageUploading}
                   />
+
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="mt-2 relative inline-block">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-20 h-20 object-cover rounded-lg border border-white/20"
+                      />
+                      <button
+                        onClick={removeSelectedImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
 
                   {/* Selected Tickets */}
                   {selectedTicketIds.length > 0 && (
@@ -443,7 +534,7 @@ export default function OrgInboxPage() {
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleImageUpload}
+                    onChange={handleImageSelect}
                     className="hidden"
                   />
 
@@ -500,7 +591,10 @@ export default function OrgInboxPage() {
                   {/* Send Button */}
                   <button
                     onClick={handleSendMessage}
-                    disabled={!messageInput.trim()}
+                    disabled={
+                      (!messageInput.trim() && !selectedImage) ||
+                      isImageUploading
+                    }
                     className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Send message"
                   >
@@ -552,6 +646,25 @@ export default function OrgInboxPage() {
                 <p className="text-white/60 text-sm">
                   {getOtherParticipant()?.userRole}
                 </p>
+
+                {/* View Profile Button */}
+                <button
+                  onClick={() => {
+                    if (
+                      organisation?.documentId &&
+                      getOtherParticipant()?.documentId
+                    ) {
+                      navigate(
+                        `/o/organisations/${organisation.documentId}/agents/${
+                          getOtherParticipant()?.documentId
+                        }`
+                      );
+                    }
+                  }}
+                  className="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                >
+                  View Profile
+                </button>
               </div>
 
               {/* Contact Information */}

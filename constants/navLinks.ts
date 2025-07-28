@@ -36,14 +36,34 @@ export const navLinks = (organisationId: string) => {
       Icon: MessageSquareQuote,
     },
     {
-      path: `/o/organisations/${organisationId}/forum`,
-      name: "Forum",
-      Icon: Mails,
-    },
-    {
       path: `/o/organisations/${organisationId}/knowledge-base`,
       name: "Knowledge Base",
       Icon: Lightbulb,
+    },
+  ];
+};
+
+export const agentNavLinks = () => {
+  return [
+    {
+      path: "/a/tickets",
+      name: "Tickets",
+      Icon: Ticket,
+    },
+    {
+      path: "/a/knowledge-base",
+      name: "Knowledge Base",
+      Icon: Lightbulb,
+    },
+    {
+      path: "/a/inbox",
+      name: "Inbox",
+      Icon: MessageSquareQuote,
+    },
+    {
+      path: "/a/notifications",
+      name: "Notifications",
+      Icon: Bell,
     },
   ];
 };

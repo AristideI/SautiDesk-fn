@@ -89,6 +89,16 @@ export const TicketHandler = {
         headers: authHeaders(),
       }
     );
+
+    await API.astraHandler.createTicket({
+      assignedTo: data.data.assignedTo?.documentId || "",
+      description: data.data.description,
+      title: data.data.title,
+      type: data.data.type || "",
+      tags: data.data.tags?.split(",") || [],
+      ticketId: data.data.documentId,
+    });
+
     // await API.smsHandler.sendSMS(
     //   "+250785478021",
     //   `Ticket created: ${

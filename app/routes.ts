@@ -61,11 +61,12 @@ export default [
       ),
     ]),
 
-    //   // Organisation Member - /m/*
-    //   route("m/dashboard", "routes/_auth/_member/dashboard.tsx"),
-    //   route("m/create-ticket", "routes/_auth/_member/create-ticket.tsx"),
-    //   route("m/view-tickets", "routes/_auth/_member/view-tickets.tsx"),
-    //   route("m/knowledge-base", "routes/_auth/_member/knowledge-base.tsx"),
-    //   route("m/inbox", "routes/_auth/_member/inbox.tsx"),
+    // Organisation Agent - /a/*
+    layout("../components/layouts/agentLayout.tsx", [
+      route("a/tickets", "routes/_auth/_agent/ticketsPage.tsx"),
+      route("a/tickets/:ticketId", "routes/_auth/_agent/viewTicketPage.tsx"),
+      route("a/knowledge-base", "routes/_auth/_agent/knowledgeBasePage.tsx"),
+      route("a/inbox", "routes/_auth/_agent/inboxPage.tsx"),
+    ]),
   ]),
 ] satisfies RouteConfig;

@@ -129,13 +129,32 @@ export function useConversations(): UseConversationsReturn {
           }
         );
 
+        // Create a properly formatted message with current user as sender
+        const formattedMessage: IMessage = {
+          ...newMessage,
+          sender: {
+            id: user.id,
+            documentId: user.documentId,
+            username: user.username,
+            email: user.email,
+            userRole: user.userRole,
+            profile: user.profile,
+            phone: user.phone,
+            organisation: user.organisation,
+            tickets: user.tickets,
+            activities: user.activities,
+            notes: user.notes,
+            createdAt: user.createdAt,
+          },
+        };
+
         // Update conversations with new message
         setConversations((prev) =>
           prev.map((conv) => {
             if (conv.documentId === conversationId) {
               return {
                 ...conv,
-                messages: [...(conv.messages || []), newMessage],
+                messages: [...(conv.messages || []), formattedMessage],
                 updatedAt: new Date().toISOString(),
               };
             }
@@ -149,21 +168,21 @@ export function useConversations(): UseConversationsReturn {
             prev
               ? {
                   ...prev,
-                  messages: [...(prev.messages || []), newMessage],
+                  messages: [...(prev.messages || []), formattedMessage],
                   updatedAt: new Date().toISOString(),
                 }
               : null
           );
         }
 
-        return newMessage;
+        return formattedMessage;
       } catch (err) {
         console.error("Error sending message:", err);
         toast.error("Failed to send message");
         return null;
       }
     },
-    [user?.documentId, selectedConversation?.documentId]
+    [user, selectedConversation?.documentId]
   );
 
   // Add participant to conversation
