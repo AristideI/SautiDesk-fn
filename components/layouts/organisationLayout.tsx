@@ -257,9 +257,9 @@ export default function OrganisationLayout() {
 
                               <span
                                 className={`text-xs px-2 py-1 rounded-full ${
-                                  notification.type === "TICKET"
+                                  notification.type === "ticket"
                                     ? "text-blue-400 bg-blue-500/20"
-                                    : notification.type === "MESSAGE"
+                                    : notification.type === "knowledgeBase"
                                     ? "text-green-400 bg-green-500/20"
                                     : "text-purple-400 bg-purple-500/20"
                                 }`}

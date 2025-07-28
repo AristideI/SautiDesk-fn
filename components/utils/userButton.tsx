@@ -59,13 +59,18 @@ export default function UserButton({ isGeneral }: { isGeneral?: boolean }) {
 
 export function OrgUserButton() {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
   const nameInitials = user?.username
     .split(" ")
     .map((n) => n[0])
     .join("");
 
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
+
   return (
-    <article className="flex  gap-4">
+    <article className="flex gap-4 cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors" onClick={handleProfileClick}>
       <button>
         {user?.profile ? (
           <img

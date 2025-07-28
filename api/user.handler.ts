@@ -73,4 +73,25 @@ export const UserHandler = {
   async logout() {
     await strapi.post("/logout");
   },
+
+  async updateUser(id: string, userData: Partial<IUser>) {
+    const { data } = await strapi.put<IUser>(`/users/${id}`, userData, {
+      headers: authHeaders(),
+    });
+    return data;
+  },
+
+  async changePassword(passwordData: { currentPassword: string; newPassword: string }) {
+    const { data } = await strapi.post("/auth/change-password", passwordData, {
+      headers: authHeaders(),
+    });
+    return data;
+  },
+
+  async updateSettings(userId: string, settings: any) {
+    const { data } = await strapi.put(`/users/${userId}`, { settings }, {
+      headers: authHeaders(),
+    });
+    return data;
+  },
 };

@@ -27,8 +27,6 @@ import {
 } from "recharts";
 import { useOrganisationContext } from "store/organisation.context";
 import { useMemo } from "react";
-import { ActivityType } from "types/activity.type";
-import { API } from "api";
 
 interface MetricCard {
   title: string;
@@ -157,26 +155,9 @@ export default function ViewOrganisation() {
     return change > 0 ? `+${change}%` : `${change}%`;
   };
 
-  const testActivityCreate = {
-    content: "Test activity",
-    user: "ngksqh1q0n7v962t0z56taqa",
-    ticket: "nc6kov0h5lt1zfw85vbjybt7",
-    knowledgeBase: "1",
-    type: ActivityType.TICKET,
-  };
-
-  async function createTestActivity() {
-    const activity = await API.activityHandler.create(testActivityCreate);
-    console.log(activity);
-  }
-
   return (
     <main className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
-        <Button
-          buttonText="Create Test Activity"
-          onPress={createTestActivity}
-        />
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

@@ -18,12 +18,12 @@ export default [
     route("health", "routes/general/health.tsx"),
   ]),
 
-  layout("../components/layouts/mainLayout.tsx", [
-    //   // Authenticated - general
-    //   route("notifications", "routes/_auth/_general/notifications.tsx"),
-    //   route("profile", "routes/_auth/_general/profile.tsx"),
-    //   route("settings", "routes/_auth/_general/settings.tsx"),
+  // Authenticated routes
+  layout("../components/layouts/authenticatedLayout.tsx", [
+    route("profile", "routes/_auth/_general/profilePage.tsx"),
+  ]),
 
+  layout("../components/layouts/mainLayout.tsx", [
     // Organisation Owner - /o/*
     route("o/organisations", "routes/_auth/_owner/organisationsPage.tsx"),
     layout("../components/layouts/organisationLayout.tsx", [
@@ -67,12 +67,5 @@ export default [
     //   route("m/view-tickets", "routes/_auth/_member/view-tickets.tsx"),
     //   route("m/knowledge-base", "routes/_auth/_member/knowledge-base.tsx"),
     //   route("m/inbox", "routes/_auth/_member/inbox.tsx"),
-
-    //   // Clients - /c/*
-    //   route("c/dashboard", "routes/_auth/_client/dashboard.tsx"),
-    //   route("c/create-ticket", "routes/_auth/_client/create-ticket.tsx"),
-    //   route("c/view-tickets", "routes/_auth/_client/view-tickets.tsx"),
-    //   route("c/knowledge-base", "routes/_auth/_client/knowledge-base.tsx"),
-    //   route("c/inbox", "routes/_auth/_client/inbox.tsx"),
   ]),
 ] satisfies RouteConfig;

@@ -89,58 +89,58 @@ export const TicketHandler = {
         headers: authHeaders(),
       }
     );
-    await API.smsHandler.sendSMS(
-      "+250785478021",
-      `Ticket created: ${
-        data.data.title
-      } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
-    );
-    await API.smsHandler.sendMail(
-      "i.aristide08@gmail.com",
-      "Ticket created",
-      `Ticket created: ${
-        data.data.title
-      } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
-    );
+    // await API.smsHandler.sendSMS(
+    //   "+250785478021",
+    //   `Ticket created: ${
+    //     data.data.title
+    //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
+    // );
+    // await API.smsHandler.sendMail(
+    //   "i.aristide08@gmail.com",
+    //   "Ticket created",
+    //   `Ticket created: ${
+    //     data.data.title
+    //   } you can view more with this link: ${`http://localhost:5173/o/organisations/${organisationId}/tickets/${data.data.documentId}`}`
+    // );
 
-    API.activityHandler.create({
-      content: `
-      ${user.username} created a ticket with title ${data.data.title} with ID ${data.data.documentId}
-      `,
-      user: user.documentId,
-      ticket: data.data.documentId,
-      type: ActivityType.TICKET,
-    });
+    // API.activityHandler.create({
+    //   content: `
+    //   ${user.username} created a ticket with title ${data.data.title} with ID ${data.data.documentId}
+    //   `,
+    //   user: user.documentId,
+    //   ticket: data.data.documentId,
+    //   type: ActivityType.TICKET,
+    // });
 
-    ticketData.similarTickets?.forEach(async (ticket) => {
-      API.activityHandler.create({
-        content: `
-        ${user.username} linked this ticket to ${data.data.title} with ID ${data.data.documentId}
-        `,
-        user: user.documentId,
-        ticket: ticket,
-        type: ActivityType.TICKET,
-      });
-    });
+    // ticketData.similarTickets?.forEach(async (ticket) => {
+    //   API.activityHandler.create({
+    //     content: `
+    //     ${user.username} linked this ticket to ${data.data.title} with ID ${data.data.documentId}
+    //     `,
+    //     user: user.documentId,
+    //     ticket: ticket,
+    //     type: ActivityType.TICKET,
+    //   });
+    // });
 
-    API.activityHandler.create({
-      content: `
-      ${user.username} assigned this ticket to ${data.data.assignedTo?.username} with ID ${data.data.assignedTo?.documentId}
-      `,
-      user: ticketData.assignedTo || "",
-      ticket: data.data.documentId,
-      type: ActivityType.TICKET,
-    });
+    // API.activityHandler.create({
+    //   content: `
+    //   ${user.username} assigned this ticket to ${data.data.assignedTo?.username} with ID ${data.data.assignedTo?.documentId}
+    //   `,
+    //   user: ticketData.assignedTo || "",
+    //   ticket: data.data.documentId,
+    //   type: ActivityType.TICKET,
+    // });
 
-    API.notificationHandler.create({
-      type: NotificationType.TICKET,
-      content: `
-      ${user.username} assigned this ticket to ${data.data.assignedTo?.username} with ID ${data.data.assignedTo?.documentId}
-      `,
-      ticket: data.data.documentId,
-      user: data.data.assignedTo?.documentId || "",
-      from: user.documentId,
-    });
+    // API.notificationHandler.create({
+    //   type: NotificationType.TICKET,
+    //   content: `
+    //   ${user.username} assigned this ticket to ${data.data.assignedTo?.username} with ID ${data.data.assignedTo?.documentId}
+    //   `,
+    //   ticket: data.data.documentId,
+    //   user: data.data.assignedTo?.documentId || "",
+    //   from: user.documentId,
+    // });
 
     return data.data;
   },
