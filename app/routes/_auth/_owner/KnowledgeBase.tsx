@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useKnowledgeBaseContext } from "store/knowledgeBase.context";
 import Button from "components/utils/button";
+import CreateKnowledgeModal from "components/modals/createKnowledgeModal";
 import {
   Search,
   BookOpen,
@@ -28,6 +29,7 @@ export default function OrgKnowledgeBase() {
   } = useKnowledgeBaseContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("content");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Filter knowledge bases based on search
   const filteredKnowledgeBases = knowledgeBases.filter((kb) =>
@@ -39,8 +41,11 @@ export default function OrgKnowledgeBase() {
   };
 
   const handleCreateArticle = () => {
-    // TODO: Implement create article modal
-    console.log("Create article clicked");
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
   };
 
   const getTagsArray = (tags: string | string[]) => {
@@ -506,6 +511,13 @@ export default function OrgKnowledgeBase() {
           )}
         </div>
       </div>
+
+      {/* Create Knowledge Base Modal */}
+      <CreateKnowledgeModal
+        isModalOpen={isCreateModalOpen}
+        onCloseModal={handleCloseCreateModal}
+        onOpenModal={handleCreateArticle}
+      />
     </main>
   );
 }

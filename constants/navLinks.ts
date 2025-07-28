@@ -2,7 +2,6 @@ import {
   Bell,
   LayoutDashboard,
   Lightbulb,
-  Mails,
   MessageSquareQuote,
   Ticket,
   Users,

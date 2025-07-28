@@ -21,10 +21,12 @@ export interface ICreateKnowledgeBase {
   title: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any;
+  tags: string[];
+  state: IState;
   author: number;
 }
 
-enum IState {
+export enum IState {
   PUBLIC = "public",
   PRIVATE = "private",
 }
