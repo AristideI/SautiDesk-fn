@@ -14,9 +14,13 @@ import {
   Shield,
   Users,
   Calendar,
+  Send,
 } from "lucide-react";
 import dayjs from "dayjs";
 import type { IKnowledgeBase } from "types/knowledgeBase.type";
+import { useAuthContext } from "store/auth.context";
+import { toast } from "react-hot-toast";
+import { API } from "api";
 
 type TabType = "content" | "insights" | "comments" | "activity";
 
@@ -26,10 +30,14 @@ export default function OrgKnowledgeBase() {
     loading,
     selectedKnowledgeBase,
     setSelectedKnowledgeBase,
+    fetchKnowledgeBase,
   } = useKnowledgeBaseContext();
+  const { user } = useAuthContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<TabType>("content");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [isAddingComment, setIsAddingComment] = useState(false);
 
   // Filter knowledge bases based on search
   const filteredKnowledgeBases = knowledgeBases.filter((kb) =>
@@ -46,6 +54,37 @@ export default function OrgKnowledgeBase() {
 
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !selectedKnowledgeBase || !user) return;
+
+    setIsAddingComment(true);
+    try {
+      await API.commentHandler.create({
+        content: newComment.trim(),
+        author: user.id,
+        knowledgeBase: selectedKnowledgeBase.id.toString(),
+      });
+
+      setNewComment("");
+      toast.success("Comment added successfully");
+
+      // Refresh the knowledge base to get updated comments
+      await fetchKnowledgeBase(selectedKnowledgeBase.documentId);
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("Failed to add comment");
+    } finally {
+      setIsAddingComment(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleAddComment();
+    }
   };
 
   const getTagsArray = (tags: string | string[]) => {
@@ -147,7 +186,7 @@ export default function OrgKnowledgeBase() {
                   <Eye size={16} className="text-blue-400" />
                   <span className="text-sm text-white/60">Views</span>
                 </div>
-                <p className="text-2xl font-bold">1,234</p>
+                <p className="text-2xl font-bold">2</p>
               </div>
               <div className="bg-white/5 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
@@ -177,43 +216,74 @@ export default function OrgKnowledgeBase() {
 
       case "comments":
         return (
-          <div className="space-y-4">
-            {selectedKnowledgeBase.comments &&
-            selectedKnowledgeBase.comments.length > 0 ? (
-              selectedKnowledgeBase.comments.map((comment) => (
-                <div key={comment.id} className="bg-white/5 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    {comment.author?.profile?.url ? (
-                      <img
-                        src={comment.author.profile.url}
-                        alt={comment.author.username}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                        <User size={16} />
+          <div className="flex flex-col h-full">
+            {/* Comments List */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {selectedKnowledgeBase.comments &&
+              selectedKnowledgeBase.comments.length > 0 ? (
+                selectedKnowledgeBase.comments.map((comment) => (
+                  <div key={comment.id} className="bg-white/5 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      {comment.author?.profile?.url ? (
+                        <img
+                          src={comment.author.profile.url}
+                          alt={comment.author.username}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                          <User size={16} />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-sm">
+                            {comment.author?.username}
+                          </span>
+                          <span className="text-xs text-white/40">
+                            {dayjs(comment.createdAt).format("MMM DD, YYYY")}
+                          </span>
+                        </div>
+                        <p className="text-sm text-white/80">
+                          {comment.content}
+                        </p>
                       </div>
-                    )}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm">
-                          {comment.author?.username}
-                        </span>
-                        <span className="text-xs text-white/40">
-                          {dayjs(comment.createdAt).format("MMM DD, YYYY")}
-                        </span>
-                      </div>
-                      <p className="text-sm text-white/80">{comment.content}</p>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-white/60">
+                  <MessageSquare
+                    size={48}
+                    className="mx-auto mb-4 opacity-50"
+                  />
+                  <p>No comments yet</p>
+                  <p className="text-sm mt-2">Be the first to add a comment!</p>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-white/60">
-                <MessageSquare size={48} className="mx-auto mb-4 opacity-50" />
-                <p>No comments yet</p>
+              )}
+            </div>
+
+            {/* Comment Input */}
+            <div className="p-6 border-t border-white/20">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Add a comment..."
+                  className="flex-1 px-4 py-2 bg-white/5 border border-white/20 rounded-lg focus:outline-none focus:border-green/50"
+                  disabled={isAddingComment}
+                />
+                <Button
+                  buttonText={isAddingComment ? "Adding..." : "Send"}
+                  icon={<Send size={16} />}
+                  onPress={handleAddComment}
+                  disabled={isAddingComment || !newComment.trim()}
+                  className="bg-green/50 border border-green"
+                />
               </div>
-            )}
+            </div>
           </div>
         );
 

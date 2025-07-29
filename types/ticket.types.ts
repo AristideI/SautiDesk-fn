@@ -21,6 +21,7 @@ export interface ITicket {
   createdAt: Date;
   updatedAt: Date;
   notes?: INote[];
+  resolutionTime?: number;
 }
 
 export interface ITicketCreate {
@@ -33,7 +34,7 @@ export interface ITicketCreate {
   organisation: string;
   tags?: string;
   source: TicketSource;
-  similarTickets?: string[]; // Array of ticket documentIds
+  similarTickets?: string[];
 }
 
 export interface ITicketUpdate {
@@ -43,7 +44,8 @@ export interface ITicketUpdate {
   priority?: TicketPriority;
   assignedTo?: string;
   tags?: string;
-  similarTickets?: string[]; // Array of ticket documentIds
+  similarTickets?: string[];
+  resolutionTime?: number;
 }
 
 export enum TicketState {

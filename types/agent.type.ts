@@ -4,17 +4,26 @@ export interface IAgent {
   id: string;
   documentId: string;
   title: string;
-  areaOfExpertise: string;
+  areaOfExpertise: {
+    skills: string[];
+    category: string;
+  };
   about?: string;
   interests?: string[];
-  qualification?: string;
-  education?: string;
+  qualification?: {
+    certifications: string[];
+  };
+  education?: {
+    degree: string;
+    institution: string;
+    yearGraduated: number;
+  };
   user: IUser;
   isActive: boolean;
-  specializations?: string[];
+  specializations?: string;
   experience?: number;
   rating?: number;
-  languages?: string[];
+  languages?: string;
   createdAt: Date;
   updatedAt: Date;
 }

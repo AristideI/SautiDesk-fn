@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import Button from "components/utils/button";
 import {
   ArrowLeft,
@@ -28,11 +28,14 @@ type TabType = "tasks" | "conversation" | "notes" | "insights";
 export default function ViewTicketPage() {
   const { ticketId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuthContext();
   const { tickets, loading, organisation } = useOrganisationContext();
   const ticket = tickets?.find((t) => t.documentId === ticketId);
 
-  const [activeTab, setActiveTab] = useState<TabType>("tasks");
+  // Get initial tab from URL parameter, default to "tasks"
+  const initialTab = (searchParams.get("tab") as TabType) || "tasks";
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [comments, setComments] = useState<IComment[]>([]);
   const [notes, setNotes] = useState<INote[]>([]);
   const [newNote, setNewNote] = useState("");

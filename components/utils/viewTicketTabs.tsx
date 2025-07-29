@@ -527,11 +527,11 @@ export default function ViewTicketTabs({
                       <div
                         key={similarTicket.id}
                         className="p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
-                        onClick={() =>
+                        onClick={() => {
                           navigate(
-                            `/o/organisations/${organisation?.documentId}/tickets/${similarTicket.documentId}`
-                          )
-                        }
+                            `/o/organisations/${organisation?.documentId}/tickets/${similarTicket.documentId}?tab=tasks`
+                          );
+                        }}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">

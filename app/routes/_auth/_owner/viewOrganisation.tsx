@@ -26,7 +26,7 @@ import {
   Cell,
 } from "recharts";
 import { useOrganisationContext } from "store/organisation.context";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   monthlyData,
   ticketTypeColors,
@@ -41,6 +41,7 @@ import dayjs from "dayjs";
 export default function ViewOrganisation() {
   const { tickets } = useOrganisationContext();
   const { organisation } = useOrganisationContext();
+  const [useRealData, setUseRealData] = useState(false);
 
   // Generate ticket type data from real tickets
   const ticketTypeData: TicketTypeData[] = useMemo(() => {
@@ -186,6 +187,77 @@ export default function ViewOrganisation() {
     return csvContent;
   };
 
+  // Generate real monthly data from actual tickets
+  const realMonthlyData = useMemo(() => {
+    if (!tickets || tickets.length === 0) return monthlyData;
+
+    const monthlyStats: Record<
+      string,
+      { created: number; solved: number; responseTime: number; count: number }
+    > = {};
+
+    // Initialize all months with 0 values
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    months.forEach((month) => {
+      monthlyStats[month] = {
+        created: 0,
+        solved: 0,
+        responseTime: 0,
+        count: 0,
+      };
+    });
+
+    // Process each ticket
+    tickets.forEach((ticket) => {
+      const createdAt = dayjs(ticket.createdAt);
+      const month = createdAt.format("MMM");
+
+      // Count created tickets
+      monthlyStats[month].created++;
+      monthlyStats[month].count++;
+
+      // Count solved tickets (RESOLVED or CLOSED)
+      if (ticket.state === "RESOLVED" || ticket.state === "CLOSED") {
+        const updatedAt = dayjs(ticket.updatedAt);
+        const solvedMonth = updatedAt.format("MMM");
+        monthlyStats[solvedMonth].solved++;
+      }
+
+      // Calculate response time (simplified - using time between created and updated)
+      const updatedAt = dayjs(ticket.updatedAt);
+      const responseTimeHours = updatedAt.diff(createdAt, "hour", true);
+      monthlyStats[month].responseTime += responseTimeHours;
+    });
+
+    // Convert to array format and calculate averages
+    return months.map((month) => ({
+      month,
+      created: monthlyStats[month].created,
+      solved: monthlyStats[month].solved,
+      responseTime:
+        monthlyStats[month].count > 0
+          ? Math.round(
+              (monthlyStats[month].responseTime / monthlyStats[month].count) *
+                10
+            ) / 10
+          : 0,
+    }));
+  }, [tickets]);
+
   const formatChangeValue = (change: number) => {
     return change > 0 ? `+${change}%` : `${change}%`;
   };
@@ -201,12 +273,30 @@ export default function ViewOrganisation() {
               Analytics and performance metrics
             </p>
           </div>
-          <Button
-            buttonText="Export Metrics"
-            onPress={handleExportCSV}
-            className="bg-white/10 hover:bg-white/20"
-            icon={<Download size={20} />}
-          />
+          <div className="flex items-center gap-4">
+            {/* Toggle Switch */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setUseRealData(!useRealData)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                  useRealData ? "bg-green-500" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    useRealData ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <Button
+              buttonText="Export Metrics"
+              onPress={handleExportCSV}
+              className="bg-white/10 hover:bg-white/20"
+              icon={<Download size={20} />}
+            />
+          </div>
         </div>
 
         {/* Metrics Cards */}
@@ -276,7 +366,7 @@ export default function ViewOrganisation() {
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
+              <BarChart data={useRealData ? realMonthlyData : monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
                 <YAxis stroke="#9CA3AF" fontSize={12} />
@@ -319,7 +409,7 @@ export default function ViewOrganisation() {
             </div>
 
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData}>
+              <LineChart data={useRealData ? realMonthlyData : monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
                 <YAxis
