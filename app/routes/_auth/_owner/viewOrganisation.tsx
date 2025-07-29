@@ -27,60 +27,20 @@ import {
 } from "recharts";
 import { useOrganisationContext } from "store/organisation.context";
 import { useMemo } from "react";
-
-interface MetricCard {
-  title: string;
-  value: string;
-  change: number;
-  changeType: "increase" | "decrease";
-  icon: React.ReactNode;
-  color: string;
-}
-
-interface MonthlyData {
-  month: string;
-  created: number;
-  solved: number;
-  responseTime: number;
-}
-
-interface TicketTypeData {
-  name: string;
-  value: number;
-  color: string;
-}
-
-// Sample data for the dashboard
-const monthlyData: MonthlyData[] = [
-  { month: "Jan", created: 45, solved: 42, responseTime: 2.1 },
-  { month: "Feb", created: 52, solved: 38, responseTime: 1.8 },
-  { month: "Mar", created: 38, solved: 25, responseTime: 2.3 },
-  { month: "Apr", created: 61, solved: 48, responseTime: 1.9 },
-  { month: "May", created: 55, solved: 52, responseTime: 2.0 },
-  { month: "Jun", created: 67, solved: 44, responseTime: 1.7 },
-  { month: "Jul", created: 49, solved: 36, responseTime: 2.2 },
-  { month: "Aug", created: 73, solved: 50, responseTime: 1.6 },
-  { month: "Sep", created: 58, solved: 55, responseTime: 1.9 },
-  { month: "Oct", created: 64, solved: 61, responseTime: 1.8 },
-  { month: "Nov", created: 71, solved: 68, responseTime: 1.7 },
-  { month: "Dec", created: 78, solved: 75, responseTime: 1.5 },
-];
-
-// Color mapping for ticket types
-const ticketTypeColors: Record<string, string> = {
-  TICKET: "#8B5CF6",
-  INCIDENT: "#EF4444",
-  QUESTION: "#3B82F6",
-  REQUEST: "#10B981",
-  PROBLEM: "#F59E0B",
-  SUGGESTION: "#8B5CF6",
-  OTHER: "#6B7280",
-};
+import {
+  monthlyData,
+  ticketTypeColors,
+  type MetricCard,
+  type TicketTypeData,
+} from "types/utils";
+import type { ITicket } from "types/ticket.types";
+import dayjs from "dayjs";
 
 // Metrics will be calculated dynamically based on tickets data
 
 export default function ViewOrganisation() {
   const { tickets } = useOrganisationContext();
+  const { organisation } = useOrganisationContext();
 
   // Generate ticket type data from real tickets
   const ticketTypeData: TicketTypeData[] = useMemo(() => {
@@ -147,8 +107,83 @@ export default function ViewOrganisation() {
   }, [tickets]);
 
   const handleExportCSV = () => {
-    // TODO: Implement CSV export functionality
-    console.log("Exporting CSV...");
+    if (!tickets || tickets.length === 0) {
+      console.log("No tickets to export");
+      return;
+    }
+
+    try {
+      // Convert tickets to CSV format
+      const csvContent = convertTicketsToCSV(tickets);
+
+      // Create and download the file
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute("href", url);
+      link.setAttribute(
+        "download",
+        `tickets-export-${dayjs().format("YYYY-MM-DD-HH-mm")}.csv`
+      );
+      link.style.visibility = "hidden";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up the URL object to prevent memory leaks
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+    }
+  };
+
+  // Function to convert tickets data to CSV format
+  const convertTicketsToCSV = (tickets: ITicket[]): string => {
+    // Define CSV headers
+    const headers = [
+      "Ticket ID",
+      "Title",
+      "Description",
+      "Status",
+      "Priority",
+      "Type",
+      "Source",
+      "Assigned To",
+      "Created By",
+      "Organization",
+      "Tags",
+      "Created At",
+      "Updated At",
+    ];
+
+    // Convert tickets to CSV rows
+    const rows = tickets.map((ticket) => [
+      ticket.id,
+      `"${ticket.title.replace(/"/g, '""')}"`, // Escape quotes in title
+      `"${ticket.description.replace(/"/g, '""')}"`, // Escape quotes in description
+      ticket.state,
+      ticket.priority,
+      ticket.type,
+      ticket.source,
+      ticket.assignedTo
+        ? `${ticket.assignedTo.username} (${ticket.assignedTo.email})`
+        : "Unassigned",
+      `${ticket.ownedBy.username} (${ticket.ownedBy.email})`,
+      organisation?.name || "Unknown",
+      ticket.tags || "",
+      dayjs(ticket.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      dayjs(ticket.updatedAt).format("YYYY-MM-DD HH:mm:ss"),
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    return csvContent;
   };
 
   const formatChangeValue = (change: number) => {
@@ -167,7 +202,7 @@ export default function ViewOrganisation() {
             </p>
           </div>
           <Button
-            buttonText="Export CSV"
+            buttonText="Export Metrics"
             onPress={handleExportCSV}
             className="bg-white/10 hover:bg-white/20"
             icon={<Download size={20} />}
